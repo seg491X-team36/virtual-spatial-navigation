@@ -1,11 +1,11 @@
-name: Backend
+name: CI
 
 on:
   push:
     branches-ignore: [main]
 
 jobs:
-  build:
+  go:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,3 +28,13 @@ jobs:
 
       - name: Go Test
         run: go test -v ./...
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Super-Linter
+        uses: github/super-linter@v4.10.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILTER_REGEX_EXCLUDE: ./**/*.(md|yaml|asset|obj|meta|txt|mtl|config|unity|twirp.*|pb.*|go)
