@@ -28,7 +28,7 @@ jobs:
 
       - name: Go Test
         run: go test -v ./...
-  lint:
+  super-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
