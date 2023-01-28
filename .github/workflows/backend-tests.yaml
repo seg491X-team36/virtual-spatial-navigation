@@ -22,9 +22,7 @@ jobs:
         run: go build -v ./...
 
       - name: Go lint
-        run: |
-          ls
-          golangci-lint run
+        uses: golangci/golangci-lint-action@v3
 
       - name: Go Test
         run: go test -v ./...
