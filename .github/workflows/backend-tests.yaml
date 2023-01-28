@@ -23,7 +23,7 @@ jobs:
 
       - name: Go lint
         run: |
-          cd vsn-backend
+          ls
           golangci-lint run
 
       - name: Go Test
