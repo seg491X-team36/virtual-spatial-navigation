@@ -22,7 +22,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.49
-          working-directory: vsn-backend
+          args: run --exclude-use-default=false ./vsn-backend/...
 
       - name: Go Test
         run: go test -v ./...
