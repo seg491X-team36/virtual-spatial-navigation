@@ -1,0 +1,22 @@
+name: Backend
+
+on:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Go Setup
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Go Build
+        run: go build -v ./...
+
+      - name: Go Test
+        run: go test -v ./...
