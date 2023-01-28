@@ -1,0 +1,30 @@
+name: Backend
+
+on:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./vsn-backend
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Go Setup
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Go Build
+        run: go build -v ./...
+
+      - name: Go lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: ./vsn-backend
+
+      - name: Go Test
+        run: go test -v ./...
