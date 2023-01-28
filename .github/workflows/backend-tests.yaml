@@ -20,10 +20,11 @@ jobs:
 
       - name: Go Build
         run: go build -v ./...
-        working-directory: ./vsn-backend
 
       - name: Go lint
         uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: ./vsn-backend
 
       - name: Go Test
         run: go test -v ./...
