@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "./schema";
+
+package schema;
+
+service Backend {
+  rpc Counter(stream CounterRequest) returns (CounterResponse);
+}
+
+message CounterRequest {
+  int64 increment = 1;
+}
+
+message CounterResponse {
+  int64 value = 1;
+}
+
+// C# files
+// protoc -I=./vsn-schema --csharp_out="./VSN Project/Assets/Scripts" --grpc_out="C:\Users\danie\Desktop\virtual-spatial-navigation\VSN PROJECT\Assets\Scripts" --plugin=protoc-gen-grpc="C:\Users\danie\Desktop\virtual-spatial-navigation\grpc_csharp_plugin.exe" ./vsn-schema/schema.proto
+// protoc -I=./vsn-schema --csharp_out="./VSN Project/Assets/Scripts" --grpc_out="./VSN PROJECT/Assets/Scripts" --plugin=protoc-gen-grpc="./grpc_csharp_plugin.exe" ./vsn-schema/schema.proto
+
+// Go files
+// protoc --go_out=./vsn-backend --go-grpc_out=./vsn-backend --twirp_out=./vsn-backend ./vsn-schema/schema.proto 
