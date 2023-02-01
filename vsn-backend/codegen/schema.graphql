@@ -1,0 +1,113 @@
+scalar Datetime
+
+enum UserAccountState {
+    REGISTERED
+    REJECTED # archived
+    ACCEPTED
+}
+
+type User {
+    id: ID!
+    email: String!
+    state: UserAccountState!
+    invites: [Invite!]!
+    results: [ExperimentResult!]! # results from experiments completed by this user
+}
+
+type Arena {
+    id: ID!
+}
+
+type Experiment {
+    id: ID!
+    name: String!
+    description: String!
+    arena: Arena!
+    results: [ExperimentResult!]! # results from this experiment
+}
+
+type ExperimentResult {
+    id: ID!
+    user: User!
+    experiment: Experiment!
+    completed: Datetime!
+    download: String! # tbd
+}
+
+type Invite {
+    id: ID!
+    user: User!
+    experiment: Experiment!
+    supervised: Boolean!
+}
+
+type Query {
+    user(id: ID!): User
+    users(state: UserAccountState): [User!]!
+
+    invite(id: ID!): Invite
+    invites(supervised: Boolean!, experiments: [ID!]): [Invite!]!
+
+    experiment(id: ID!): Experiment
+    experiments: [Experiment!]!
+}
+
+
+type Mutation {
+    # users
+    userRegister(email: String!): UserPayload! 
+    userSelect(input: [UserSelectionInput!]!): [UserSelectionPayload!]!
+
+    # invites
+    invite(input: [InviteInput!]!): [InvitePayload!]!
+    
+    # experiments
+    experimentCreate(input: ExperimentInput!): ExperimentPayload!
+    experimentUpdateName(input: ExperimentUpdateNameInput!): ExperimentPayload!
+    experimentUpdateDescription(input: ExperimentUpdateDescriptionInput!): ExperimentPayload!
+}
+
+input ExperimentInput {
+    arenaId: ID!
+}
+
+input ExperimentUpdateNameInput {
+    experimentId: ID!
+    name: String!
+}
+
+input ExperimentUpdateDescriptionInput {
+    experimentId: ID!
+    description: String!
+}
+
+type ExperimentPayload {
+    experiment: Experiment
+    error: String
+}
+
+input InviteInput {
+    userId: ID!
+    experimentId: ID!
+    supervise: Boolean!
+}
+
+type InvitePayload {
+    invite: Invite
+    error: String!
+}
+
+type UserPayload {
+    user: User
+    error: String
+}
+
+input UserSelectionInput {
+    userId: ID!
+    accept: Boolean!
+}
+
+type UserSelectionPayload {
+    user: User!
+    error: String!
+}
