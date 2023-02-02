@@ -11,9 +11,6 @@ CREATE TABLE experiments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     description TEXT NOT NULL
-    -- TODO: not arenas aren't implemented
-    -- arena_id UUID NOT NULL,
-    -- CONSTRAINT fk_arena FOREIGN KEY(arena_id) REFERENCES arenas(id)
 );
 
 CREATE TABLE experiment_results (
