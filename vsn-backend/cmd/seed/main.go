@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/lib/pq"
 	"github.com/seg491X-team36/vsn-backend/features/postgres"
 )
 

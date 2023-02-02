@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"io/ioutil"
 
+	_ "github.com/lib/pq"
 	"github.com/seg491X-team36/vsn-backend/codegen/db"
 )
 
@@ -21,7 +21,7 @@ func NewConnection(credentials Credentials, schemaReader io.Reader) (*Connection
 	}
 
 	// read the schema
-	schema, _ := ioutil.ReadAll(schemaReader)
+	schema, _ := io.ReadAll(schemaReader)
 
 	// update the schema
 	_, err = conn.Exec(string(schema))
