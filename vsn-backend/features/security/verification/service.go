@@ -33,35 +33,35 @@ type Service struct {
 }
 
 func (s *Service) EnterEmail(email string) (string, error) {
-	// user must exist
+	// verify the email
 	user, err := s.Users.GetByEmail(email)
 	if err != nil {
-		return "", errors.New("user does not exist")
+		return "", errors.New("email not registered")
 	}
 
+	// generate the code
 	code := s.Codes.Generate()
-	message := fmt.Sprintf("verification code: %s", code)
-	s.Email.Send(email, message)
 
-	// save verification request
+	// store the verification request
 	s.Pending[email] = verificationRequest{
 		code:     code,
 		expireAt: time.Now().Add(s.CodesExpireAfter),
 		userId:   user.Id,
 	}
 
+	s.notify(email, code)
 	return code, nil
 }
 
 func (s *Service) EnterVerificationCode(email, code string) (string, error) {
-	// verify the user
+	// verify the code
 	request, err := s.verify(email, code)
 	if err != nil {
 		return "", nil
 	}
 	delete(s.Pending, email)
 
-	// create the token
+	// generate the token
 	token := s.Tokens.Generate(Token{UserId: request.userId})
 	return token, nil
 }
@@ -85,4 +85,9 @@ func (s *Service) verify(email, code string) (verificationRequest, error) {
 	}
 
 	return request, nil
+}
+
+func (s *Service) notify(email, code string) {
+	message := fmt.Sprintf("verification code: %s", code)
+	s.Email.Send(email, message)
 }

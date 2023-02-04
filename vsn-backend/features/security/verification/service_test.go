@@ -54,11 +54,13 @@ func TestService(t *testing.T) {
 		code, err := service.EnterEmail("test@gmail.com")
 		assert.NoError(t, err)
 
+		// verification successful
 		_, err = service.EnterVerificationCode("test@gmail.com", code)
 		assert.NoError(t, err)
 
-		// the verification request is deleted
-		assert.Equal(t, 0, len(service.Pending))
+		// verification code cannot be re-used
+		_, err = service.EnterVerificationCode("test@gmail.com", code)
+		assert.Error(t, err)
 
 		// the email has been sent
 		_, ok := email.sent["test@gmail.com"]
