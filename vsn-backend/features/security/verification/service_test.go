@@ -51,8 +51,10 @@ func TestService(t *testing.T) {
 	}
 
 	t.Run("happy-path", func(t *testing.T) {
-		code, err := service.EnterEmail("test@gmail.com")
+		err := service.EnterEmail("test@gmail.com")
 		assert.NoError(t, err)
+
+		code := service.Pending["test@gmail.com"].code // get the code that was sent
 
 		// verification successful
 		_, err = service.EnterVerificationCode("test@gmail.com", code)
@@ -73,7 +75,7 @@ func TestService(t *testing.T) {
 			err:  errors.New("user does not exist"),
 		}
 
-		_, err := service.EnterEmail("test@gmail.com")
+		err := service.EnterEmail("test@gmail.com")
 		assert.Error(t, err)
 	})
 

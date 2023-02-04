@@ -32,11 +32,11 @@ type Service struct {
 	Pending          map[string]PendingRequest
 }
 
-func (s *Service) EnterEmail(email string) (string, error) {
+func (s *Service) EnterEmail(email string) error {
 	// verify the email
 	user, err := s.Users.GetByEmail(email)
 	if err != nil {
-		return "", errors.New("email not registered")
+		return errors.New("email not registered")
 	}
 
 	// generate the code
@@ -50,7 +50,7 @@ func (s *Service) EnterEmail(email string) (string, error) {
 	}
 
 	s.notify(email, code)
-	return code, nil
+	return nil
 }
 
 func (s *Service) EnterVerificationCode(email, code string) (string, error) {
