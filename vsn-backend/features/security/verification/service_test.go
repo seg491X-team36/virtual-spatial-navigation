@@ -32,7 +32,7 @@ func TestService(t *testing.T) {
 		sent: map[string]string{},
 	}
 
-	service := Service{
+	service := &Service{
 		Users: &verificationUserRepositoryStub{
 			user: model.User{Id: uuid.New()},
 			err:  nil,

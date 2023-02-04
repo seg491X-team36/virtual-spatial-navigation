@@ -57,7 +57,7 @@ func (s *Service) EnterVerificationCode(email, code string) (string, error) {
 	// verify the code
 	request, err := s.verify(email, code)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	delete(s.Pending, email)
 
