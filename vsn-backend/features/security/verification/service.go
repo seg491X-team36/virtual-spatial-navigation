@@ -17,7 +17,7 @@ type verificationEmailService interface {
 	Send(to, message string)
 }
 
-type verificationRequest struct {
+type PendingRequest struct {
 	code     string
 	expireAt time.Time
 	userId   uuid.UUID // saved during EnterEmail, used in EnterVerificationCode
@@ -29,7 +29,7 @@ type Service struct {
 	Tokens           *TokenManager
 	Codes            *CodeGenerator
 	CodesExpireAfter time.Duration
-	Pending          map[string]verificationRequest
+	Pending          map[string]PendingRequest
 }
 
 func (s *Service) EnterEmail(email string) (string, error) {
@@ -43,7 +43,7 @@ func (s *Service) EnterEmail(email string) (string, error) {
 	code := s.Codes.Generate()
 
 	// store the verification request
-	s.Pending[email] = verificationRequest{
+	s.Pending[email] = PendingRequest{
 		code:     code,
 		expireAt: time.Now().Add(s.CodesExpireAfter),
 		userId:   user.Id,
@@ -66,22 +66,22 @@ func (s *Service) EnterVerificationCode(email, code string) (string, error) {
 	return token, nil
 }
 
-func (s *Service) verify(email, code string) (verificationRequest, error) {
+func (s *Service) verify(email, code string) (PendingRequest, error) {
 	request, ok := s.Pending[email]
 
 	// verification code has not been requested
 	if !ok {
-		return verificationRequest{}, errors.New("verification failed")
+		return PendingRequest{}, errors.New("verification failed")
 	}
 
 	// verification codes do not match
 	if code != request.code {
-		return verificationRequest{}, errors.New("verification failed")
+		return PendingRequest{}, errors.New("verification failed")
 	}
 
 	// verification code has expired
 	if time.Now().After(request.expireAt) {
-		return verificationRequest{}, errors.New("verification failed")
+		return PendingRequest{}, errors.New("verification failed")
 	}
 
 	return request, nil

@@ -47,7 +47,7 @@ func TestService(t *testing.T) {
 		Tokens: &TokenManager{
 			Secret: []byte("secret"),
 		},
-		Pending: map[string]verificationRequest{},
+		Pending: map[string]PendingRequest{},
 	}
 
 	t.Run("happy-path", func(t *testing.T) {
@@ -84,7 +84,7 @@ func TestVerify(t *testing.T) {
 		Tokens: &TokenManager{
 			Secret: []byte("secret"),
 		},
-		Pending: map[string]verificationRequest{
+		Pending: map[string]PendingRequest{
 			"test2@gmail.com": {
 				code:     "111222",
 				expireAt: time.Now().Add(-time.Minute), // expired

@@ -7,7 +7,7 @@ import (
 )
 
 // mock RandFunc that increments starting at 0
-func IncrementRandFunc() RandFunc {
+func incrementRandFunc() RandFunc {
 	i := 0
 	return func(max int) int {
 		temp := i
@@ -21,7 +21,7 @@ func TestCodeGenerator(t *testing.T) {
 		codes := CodeGenerator{
 			Characters: DefaultCharacters,
 			Length:     6,
-			Rand:       IncrementRandFunc(),
+			Rand:       incrementRandFunc(),
 		}
 
 		code := codes.Generate()
