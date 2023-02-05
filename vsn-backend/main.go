@@ -27,7 +27,11 @@ func ServiceAccount(secretFile string) *http.Client {
 		PrivateKey string `json:"private_key"`
 	}{}
 
-	json.Unmarshal(b, &s)
+	err = json.Unmarshal(b, &s)
+	if err != nil {
+		log.Fatalf("Error unmarshalling json: %v", err)
+	}
+
 	config := &jwt.Config{
 		Email:      s.Email,
 		PrivateKey: []byte(s.PrivateKey),
@@ -60,18 +64,6 @@ func main() {
 	}
 
 	formId := getFormID()
-
-	// resp, err := srv.Forms.Responses.List(formId).Do()
-	// if err != nil {
-	// 	log.Fatalf("Failed to retrirve form responses: %v", err)
-	// }
-
-	// for i, r := range resp.Responses {
-	// 	fmt.Printf("Response %v: ", i+1)
-	// 	for _, a := range r.Answers {
-	// 		fmt.Printf("%v\n", a.TextAnswers.Answers[0].Value)
-	// 	}
-	// }
 
 	for {
 		resp, err := srv.Forms.Responses.List(formId).Do()
