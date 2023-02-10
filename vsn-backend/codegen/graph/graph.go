@@ -99,7 +99,7 @@ type ComplexityRoot struct {
 		Experiment  func(childComplexity int, id string) int
 		Experiments func(childComplexity int) int
 		Invite      func(childComplexity int, id string) int
-		Invites     func(childComplexity int, supervised bool, experiments []string) int
+		Invites     func(childComplexity int, supervised bool, experiments string) int
 		User        func(childComplexity int, id string) int
 		Users       func(childComplexity int, state *model.UserAccountState) int
 	}
@@ -156,7 +156,7 @@ type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context, state *model.UserAccountState) ([]model.User, error)
 	Invite(ctx context.Context, id string) (*model.Invite, error)
-	Invites(ctx context.Context, supervised bool, experiments []string) ([]model.Invite, error)
+	Invites(ctx context.Context, supervised bool, experiments string) ([]model.Invite, error)
 	Experiment(ctx context.Context, id string) (*model.Experiment, error)
 	Experiments(ctx context.Context) ([]model.Experiment, error)
 }
@@ -428,7 +428,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Invites(childComplexity, args["supervised"].(bool), args["experiments"].([]string)), true
+		return e.complexity.Query.Invites(childComplexity, args["supervised"].(bool), args["experiments"].(string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -638,7 +638,7 @@ type Query {
     users(state: UserAccountState): [User!]!
 
     invite(id: ID!): Invite
-    invites(supervised: Boolean!, experiments: [ID!]): [Invite!]!
+    invites(supervised: Boolean!, experiments: ID!): [Invite!]!
 
     experiment(id: ID!): Experiment
     experiments: [Experiment!]!
@@ -681,7 +681,7 @@ type ExperimentPayload {
 input InviteInput {
     userId: ID!
     experimentId: ID!
-    supervise: Boolean!
+    supervised: Boolean!
 }
 
 type InvitePayload {
@@ -858,10 +858,10 @@ func (ec *executionContext) field_Query_invites_args(ctx context.Context, rawArg
 		}
 	}
 	args["supervised"] = arg0
-	var arg1 []string
+	var arg1 string
 	if tmp, ok := rawArgs["experiments"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experiments"))
-		arg1, err = ec.unmarshalOID2ᚕstringᚄ(ctx, tmp)
+		arg1, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2415,7 +2415,7 @@ func (ec *executionContext) _Query_invites(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Invites(rctx, fc.Args["supervised"].(bool), fc.Args["experiments"].([]string))
+		return ec.resolvers.Query().Invites(rctx, fc.Args["supervised"].(bool), fc.Args["experiments"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5026,7 +5026,7 @@ func (ec *executionContext) unmarshalInputInviteInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userId", "experimentId", "supervise"}
+	fieldsInOrder := [...]string{"userId", "experimentId", "supervised"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5049,11 +5049,11 @@ func (ec *executionContext) unmarshalInputInviteInput(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
-		case "supervise":
+		case "supervised":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("supervise"))
-			it.Supervise, err = ec.unmarshalNBoolean2bool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("supervised"))
+			it.Supervised, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6939,44 +6939,6 @@ func (ec *executionContext) marshalOExperiment2ᚖgithubᚗcomᚋseg491Xᚑteam3
 		return graphql.Null
 	}
 	return ec._Experiment(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalOInvite2ᚖgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐInvite(ctx context.Context, sel ast.SelectionSet, v *model.Invite) graphql.Marshaler {

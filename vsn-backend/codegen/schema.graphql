@@ -46,7 +46,7 @@ type Query {
     users(state: UserAccountState): [User!]!
 
     invite(id: ID!): Invite
-    invites(supervised: Boolean!, experiments: [ID!]): [Invite!]!
+    invites(supervised: Boolean!, experiments: ID!): [Invite!]!
 
     experiment(id: ID!): Experiment
     experiments: [Experiment!]!
@@ -89,7 +89,7 @@ type ExperimentPayload {
 input InviteInput {
     userId: ID!
     experimentId: ID!
-    supervise: Boolean!
+    supervised: Boolean!
 }
 
 type InvitePayload {

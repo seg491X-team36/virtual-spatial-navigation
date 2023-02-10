@@ -22,9 +22,9 @@ type User struct {
 }
 
 type Invite struct {
-	Id           uuid.UUID
-	UserId       uuid.UUID
-	ExperimentId uuid.UUID
+	ID           uuid.UUID
+	UserID       uuid.UUID
+	ExperimentID uuid.UUID
 	Supervised   bool
 }
 
@@ -63,7 +63,7 @@ type ExperimentUpdateNameInput struct {
 type InviteInput struct {
 	UserID       string
 	ExperimentID string
-	Supervise    bool
+	Supervised   bool
 }
 
 type UserSelectionInput struct {
