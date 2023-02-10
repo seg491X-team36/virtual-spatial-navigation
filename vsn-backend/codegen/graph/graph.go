@@ -43,6 +43,11 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
 	User() UserResolver
+	ExperimentInput() ExperimentInputResolver
+	ExperimentUpdateDescriptionInput() ExperimentUpdateDescriptionInputResolver
+	ExperimentUpdateNameInput() ExperimentUpdateNameInputResolver
+	InviteInput() InviteInputResolver
+	UserSelectionInput() UserSelectionInputResolver
 }
 
 type DirectiveRoot struct {
@@ -165,6 +170,23 @@ type UserResolver interface {
 
 	Invites(ctx context.Context, obj *model.User) ([]model.Invite, error)
 	Results(ctx context.Context, obj *model.User) ([]model.ExperimentResult, error)
+}
+
+type ExperimentInputResolver interface {
+	ArenaID(ctx context.Context, obj *model.ExperimentInput, data string) error
+}
+type ExperimentUpdateDescriptionInputResolver interface {
+	ExperimentID(ctx context.Context, obj *model.ExperimentUpdateDescriptionInput, data string) error
+}
+type ExperimentUpdateNameInputResolver interface {
+	ExperimentID(ctx context.Context, obj *model.ExperimentUpdateNameInput, data string) error
+}
+type InviteInputResolver interface {
+	UserID(ctx context.Context, obj *model.InviteInput, data string) error
+	ExperimentID(ctx context.Context, obj *model.InviteInput, data string) error
+}
+type UserSelectionInputResolver interface {
+	UserID(ctx context.Context, obj *model.UserSelectionInput, data string) error
 }
 
 type executableSchema struct {
@@ -4937,8 +4959,11 @@ func (ec *executionContext) unmarshalInputExperimentInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaId"))
-			it.ArenaID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExperimentInput().ArenaID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		}
@@ -4965,8 +4990,11 @@ func (ec *executionContext) unmarshalInputExperimentUpdateDescriptionInput(ctx c
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experimentId"))
-			it.ExperimentID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExperimentUpdateDescriptionInput().ExperimentID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "description":
@@ -5001,8 +5029,11 @@ func (ec *executionContext) unmarshalInputExperimentUpdateNameInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experimentId"))
-			it.ExperimentID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.ExperimentUpdateNameInput().ExperimentID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "name":
@@ -5037,16 +5068,22 @@ func (ec *executionContext) unmarshalInputInviteInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.InviteInput().UserID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "experimentId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experimentId"))
-			it.ExperimentID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.InviteInput().ExperimentID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "supervised":
@@ -5081,8 +5118,11 @@ func (ec *executionContext) unmarshalInputUserSelectionInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.UserSelectionInput().UserID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "accept":

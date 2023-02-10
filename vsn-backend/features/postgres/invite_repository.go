@@ -47,17 +47,9 @@ func (repository *InviteRepository) CreateInvite(
 	ctx context.Context,
 	input model.InviteInput,
 ) (model.Invite, error) {
-	userId, err := uuid.Parse(input.UserID)
-	if err != nil {
-		return model.Invite{}, err
-	}
-	expId, err := uuid.Parse(input.ExperimentID)
-	if err != nil {
-		return model.Invite{}, err
-	}
 	invite, err := repository.Query.CreateInvite(ctx, db.CreateInviteParams{
-		UserID:       userId,
-		ExperimentID: expId,
+		UserID:       input.UserID,
+		ExperimentID: input.ExperimentID,
 		Supervised:   input.Supervised,
 	})
 	return model.Invite(invite), err
