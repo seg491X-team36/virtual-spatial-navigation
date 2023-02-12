@@ -7,7 +7,7 @@ import (
 	"github.com/seg491X-team36/vsn-backend/features/security/verification"
 )
 
-var tokenHeader = "token" // tokens should be stored in
+const tokenHeader = "token" // tokens should be stored in
 
 type TokenVerifier interface {
 	Verify(tokenString string) (verification.Token, error)
