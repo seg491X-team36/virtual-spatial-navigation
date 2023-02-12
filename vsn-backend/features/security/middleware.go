@@ -27,7 +27,7 @@ func AuthMiddleware(verifier TokenVerifier) func(http.Handler) http.Handler {
 			// authentication required
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("authorization required"))
+				_, _ = w.Write([]byte("authorization required"))
 				return
 			}
 
