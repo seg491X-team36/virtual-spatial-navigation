@@ -22,9 +22,9 @@ type User struct {
 }
 
 type Invite struct {
-	Id           uuid.UUID
-	UserId       uuid.UUID
-	ExperimentId uuid.UUID
+	ID           uuid.UUID
+	UserID       uuid.UUID
+	ExperimentID uuid.UUID
 	Supervised   bool
 }
 
@@ -36,7 +36,7 @@ type Experiment struct {
 	Id          uuid.UUID
 	Name        string
 	Description string
-	ArenaId     int
+	ArenaId     uuid.UUID
 }
 
 type ExperimentResult struct {
@@ -47,26 +47,26 @@ type ExperimentResult struct {
 }
 
 type ExperimentInput struct {
-	ArenaID string
+	ArenaID uuid.UUID
 }
 
 type ExperimentUpdateDescriptionInput struct {
-	ExperimentID string
+	ExperimentID uuid.UUID
 	Description  string
 }
 
 type ExperimentUpdateNameInput struct {
-	ExperimentID string
+	ExperimentID uuid.UUID
 	Name         string
 }
 
 type InviteInput struct {
-	UserID       string
-	ExperimentID string
-	Supervise    bool
+	UserID       uuid.UUID
+	ExperimentID uuid.UUID
+	Supervised   bool
 }
 
 type UserSelectionInput struct {
-	UserID string
+	UserID uuid.UUID
 	Accept bool
 }
