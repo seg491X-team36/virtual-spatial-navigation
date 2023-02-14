@@ -43,7 +43,7 @@ func postRequestWrapper[Request, Response any](
 		}
 
 		// sucessful response
-		w.Write(data)
+		_, _ = w.Write(data)
 		w.WriteHeader(http.StatusOK)
 	}
 }
