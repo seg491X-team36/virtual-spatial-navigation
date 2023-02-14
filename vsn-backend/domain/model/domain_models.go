@@ -9,9 +9,9 @@ import (
 type UserAccountState string
 
 const (
-	UserAccountStateRegistered UserAccountState = "REGISTERED"
-	UserAccountStateRejected   UserAccountState = "REJECTED"
-	UserAccountStateAccepted   UserAccountState = "ACCEPTED"
+	REGISTERED = UserAccountState("REGISTERED")
+	REJECTED   = UserAccountState("REJECTED")
+	ACCEPTED   = UserAccountState("ACCEPTED")
 )
 
 type User struct {
