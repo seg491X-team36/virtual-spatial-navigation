@@ -66,5 +66,6 @@ func (e *Endpoints) Bind(r chi.Router) {
 		r.Post("/start", func(w http.ResponseWriter, r *http.Request) {})
 		r.Post("/round/start", func(w http.ResponseWriter, r *http.Request) {})
 		r.Post("/round/end", func(w http.ResponseWriter, r *http.Request) {})
+		r.Post("/frame", func(w http.ResponseWriter, r *http.Request) {})
 	})
 }
