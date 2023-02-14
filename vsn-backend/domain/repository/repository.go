@@ -8,6 +8,10 @@ import (
 )
 
 type UserRepository interface {
+	GetUser(ctx context.Context, id uuid.UUID) (model.User, error)
+	GetUsersByState(ctx context.Context, state model.UserAccountState) ([]model.User, error)
+	CreateUser(ctx context.Context, email string) (model.User, error)
+	UpdateUserState(ctx context.Context, input model.UserSelectionInput) error
 }
 
 type InviteRepository interface {
