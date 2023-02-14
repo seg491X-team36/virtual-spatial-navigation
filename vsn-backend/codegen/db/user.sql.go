@@ -25,7 +25,7 @@ RETURNING id, email, state, source
 
 type CreateUserParams struct {
 	Email  string
-	State  UserAccountRole
+	State  UserAccountState
 	Source string
 }
 
@@ -66,7 +66,7 @@ FROM users
 WHERE state = $1
 `
 
-func (q *Queries) GetUsersByState(ctx context.Context, state UserAccountRole) ([]User, error) {
+func (q *Queries) GetUsersByState(ctx context.Context, state UserAccountState) ([]User, error) {
 	rows, err := q.db.QueryContext(ctx, getUsersByState, state)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ RETURNING id, email, state, source
 
 type UpdateUserStateParams struct {
 	ID    uuid.UUID
-	State UserAccountRole
+	State UserAccountState
 }
 
 func (q *Queries) UpdateUserState(ctx context.Context, arg UpdateUserStateParams) error {

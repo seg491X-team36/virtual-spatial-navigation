@@ -41,7 +41,7 @@ func (repository *UserRepository) GetUsersByState(
 	ctx context.Context,
 	state model.UserAccountState,
 ) ([]model.User, error) {
-	users, err := repository.Query.GetUsersByState(ctx, db.UserAccountRole(state))
+	users, err := repository.Query.GetUsersByState(ctx, db.UserAccountState(state))
 	return convertUsers(users), err
 }
 
@@ -52,7 +52,7 @@ func (repository UserRepository) CreateUser(
 ) (model.User, error) {
 	user, err := repository.Query.CreateUser(ctx, db.CreateUserParams{
 		Email:  email,
-		State:  db.UserAccountRoleREGISTERED,
+		State:  db.UserAccountStateREGISTERED,
 		Source: source,
 	})
 	return convertUser(user), err
@@ -65,12 +65,12 @@ func (repository UserRepository) UpdateUserState(
 	if input.Accept {
 		return repository.Query.UpdateUserState(ctx, db.UpdateUserStateParams{
 			ID:    input.UserID,
-			State: db.UserAccountRoleACCEPTED,
+			State: db.UserAccountStateACCEPTED,
 		})
 	} else {
 		return repository.Query.UpdateUserState(ctx, db.UpdateUserStateParams{
 			ID:    input.UserID,
-			State: db.UserAccountRoleREJECTED,
+			State: db.UserAccountStateACCEPTED,
 		})
 	}
 }
