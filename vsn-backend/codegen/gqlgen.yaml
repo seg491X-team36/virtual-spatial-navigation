@@ -47,3 +47,9 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  ID:
+    model:
+      - github.com/seg491X-team36/vsn-backend/features/resolvers/scalars.UUID
+  Time:
+    model:
+      - github.com/seg491X-team36/vsn-backend/features/resolvers/scalars.Time
