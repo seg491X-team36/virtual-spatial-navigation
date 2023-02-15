@@ -15,9 +15,8 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
-	"github.com/seg491X-team36/vsn-backend/codegen/graph/sdl"
 	"github.com/seg491X-team36/vsn-backend/domain/model"
-	"github.com/seg491X-team36/vsn-backend/features/resolvers"
+	"github.com/seg491X-team36/vsn-backend/features/resolvers/scalars"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -141,12 +140,12 @@ type InviteResolver interface {
 	Experiment(ctx context.Context, obj *model.Invite) (model.Experiment, error)
 }
 type MutationResolver interface {
-	UserRegister(ctx context.Context, email string) (sdl.UserPayload, error)
-	UserSelect(ctx context.Context, input []model.UserSelectionInput) ([]sdl.UserSelectionPayload, error)
-	Invite(ctx context.Context, input []model.InviteInput) ([]sdl.InvitePayload, error)
-	ExperimentCreate(ctx context.Context, input model.ExperimentInput) (sdl.ExperimentPayload, error)
-	ExperimentUpdateName(ctx context.Context, input model.ExperimentUpdateNameInput) (sdl.ExperimentPayload, error)
-	ExperimentUpdateDescription(ctx context.Context, input model.ExperimentUpdateDescriptionInput) (sdl.ExperimentPayload, error)
+	UserRegister(ctx context.Context, email string) (UserPayload, error)
+	UserSelect(ctx context.Context, input []model.UserSelectionInput) ([]UserSelectionPayload, error)
+	Invite(ctx context.Context, input []model.InviteInput) ([]InvitePayload, error)
+	ExperimentCreate(ctx context.Context, input model.ExperimentInput) (ExperimentPayload, error)
+	ExperimentUpdateName(ctx context.Context, input model.ExperimentUpdateNameInput) (ExperimentPayload, error)
+	ExperimentUpdateDescription(ctx context.Context, input model.ExperimentUpdateDescriptionInput) (ExperimentPayload, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id uuid.UUID) (*model.User, error)
@@ -1212,7 +1211,7 @@ func (ec *executionContext) fieldContext_Experiment_results(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _ExperimentPayload_experiment(ctx context.Context, field graphql.CollectedField, obj *sdl.ExperimentPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _ExperimentPayload_experiment(ctx context.Context, field graphql.CollectedField, obj *ExperimentPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ExperimentPayload_experiment(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1265,7 +1264,7 @@ func (ec *executionContext) fieldContext_ExperimentPayload_experiment(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ExperimentPayload_error(ctx context.Context, field graphql.CollectedField, obj *sdl.ExperimentPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _ExperimentPayload_error(ctx context.Context, field graphql.CollectedField, obj *ExperimentPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ExperimentPayload_error(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1750,7 +1749,7 @@ func (ec *executionContext) fieldContext_Invite_supervised(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _InvitePayload_invite(ctx context.Context, field graphql.CollectedField, obj *sdl.InvitePayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitePayload_invite(ctx context.Context, field graphql.CollectedField, obj *InvitePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_InvitePayload_invite(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1801,7 +1800,7 @@ func (ec *executionContext) fieldContext_InvitePayload_invite(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _InvitePayload_error(ctx context.Context, field graphql.CollectedField, obj *sdl.InvitePayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitePayload_error(ctx context.Context, field graphql.CollectedField, obj *InvitePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_InvitePayload_error(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1870,9 +1869,9 @@ func (ec *executionContext) _Mutation_userRegister(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(sdl.UserPayload)
+	res := resTmp.(UserPayload)
 	fc.Result = res
-	return ec.marshalNUserPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐUserPayload(ctx, field.Selections, res)
+	return ec.marshalNUserPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_userRegister(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1930,9 +1929,9 @@ func (ec *executionContext) _Mutation_userSelect(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]sdl.UserSelectionPayload)
+	res := resTmp.([]UserSelectionPayload)
 	fc.Result = res
-	return ec.marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐUserSelectionPayloadᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayloadᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_userSelect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1990,9 +1989,9 @@ func (ec *executionContext) _Mutation_invite(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]sdl.InvitePayload)
+	res := resTmp.([]InvitePayload)
 	fc.Result = res
-	return ec.marshalNInvitePayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐInvitePayloadᚄ(ctx, field.Selections, res)
+	return ec.marshalNInvitePayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐInvitePayloadᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_invite(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2050,9 +2049,9 @@ func (ec *executionContext) _Mutation_experimentCreate(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(sdl.ExperimentPayload)
+	res := resTmp.(ExperimentPayload)
 	fc.Result = res
-	return ec.marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐExperimentPayload(ctx, field.Selections, res)
+	return ec.marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐExperimentPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_experimentCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2110,9 +2109,9 @@ func (ec *executionContext) _Mutation_experimentUpdateName(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(sdl.ExperimentPayload)
+	res := resTmp.(ExperimentPayload)
 	fc.Result = res
-	return ec.marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐExperimentPayload(ctx, field.Selections, res)
+	return ec.marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐExperimentPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_experimentUpdateName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2170,9 +2169,9 @@ func (ec *executionContext) _Mutation_experimentUpdateDescription(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(sdl.ExperimentPayload)
+	res := resTmp.(ExperimentPayload)
 	fc.Result = res
-	return ec.marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐExperimentPayload(ctx, field.Selections, res)
+	return ec.marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐExperimentPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_experimentUpdateDescription(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2946,7 +2945,7 @@ func (ec *executionContext) fieldContext_User_results(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _UserPayload_user(ctx context.Context, field graphql.CollectedField, obj *sdl.UserPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserPayload_user(ctx context.Context, field graphql.CollectedField, obj *UserPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserPayload_user(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2999,7 +2998,7 @@ func (ec *executionContext) fieldContext_UserPayload_user(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _UserPayload_error(ctx context.Context, field graphql.CollectedField, obj *sdl.UserPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserPayload_error(ctx context.Context, field graphql.CollectedField, obj *UserPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserPayload_error(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3040,7 +3039,7 @@ func (ec *executionContext) fieldContext_UserPayload_error(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSelectionPayload_user(ctx context.Context, field graphql.CollectedField, obj *sdl.UserSelectionPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSelectionPayload_user(ctx context.Context, field graphql.CollectedField, obj *UserSelectionPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSelectionPayload_user(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3096,7 +3095,7 @@ func (ec *executionContext) fieldContext_UserSelectionPayload_user(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSelectionPayload_error(ctx context.Context, field graphql.CollectedField, obj *sdl.UserSelectionPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSelectionPayload_error(ctx context.Context, field graphql.CollectedField, obj *UserSelectionPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSelectionPayload_error(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5213,7 +5212,7 @@ func (ec *executionContext) _Experiment(ctx context.Context, sel ast.SelectionSe
 
 var experimentPayloadImplementors = []string{"ExperimentPayload"}
 
-func (ec *executionContext) _ExperimentPayload(ctx context.Context, sel ast.SelectionSet, obj *sdl.ExperimentPayload) graphql.Marshaler {
+func (ec *executionContext) _ExperimentPayload(ctx context.Context, sel ast.SelectionSet, obj *ExperimentPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, experimentPayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -5412,7 +5411,7 @@ func (ec *executionContext) _Invite(ctx context.Context, sel ast.SelectionSet, o
 
 var invitePayloadImplementors = []string{"InvitePayload"}
 
-func (ec *executionContext) _InvitePayload(ctx context.Context, sel ast.SelectionSet, obj *sdl.InvitePayload) graphql.Marshaler {
+func (ec *executionContext) _InvitePayload(ctx context.Context, sel ast.SelectionSet, obj *InvitePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, invitePayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -5746,7 +5745,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 var userPayloadImplementors = []string{"UserPayload"}
 
-func (ec *executionContext) _UserPayload(ctx context.Context, sel ast.SelectionSet, obj *sdl.UserPayload) graphql.Marshaler {
+func (ec *executionContext) _UserPayload(ctx context.Context, sel ast.SelectionSet, obj *UserPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userPayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -5775,7 +5774,7 @@ func (ec *executionContext) _UserPayload(ctx context.Context, sel ast.SelectionS
 
 var userSelectionPayloadImplementors = []string{"UserSelectionPayload"}
 
-func (ec *executionContext) _UserSelectionPayload(ctx context.Context, sel ast.SelectionSet, obj *sdl.UserSelectionPayload) graphql.Marshaler {
+func (ec *executionContext) _UserSelectionPayload(ctx context.Context, sel ast.SelectionSet, obj *UserSelectionPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userSelectionPayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
@@ -6198,7 +6197,7 @@ func (ec *executionContext) unmarshalNExperimentInput2githubᚗcomᚋseg491Xᚑt
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐExperimentPayload(ctx context.Context, sel ast.SelectionSet, v sdl.ExperimentPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNExperimentPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐExperimentPayload(ctx context.Context, sel ast.SelectionSet, v ExperimentPayload) graphql.Marshaler {
 	return ec._ExperimentPayload(ctx, sel, &v)
 }
 
@@ -6261,12 +6260,12 @@ func (ec *executionContext) unmarshalNExperimentUpdateNameInput2githubᚗcomᚋs
 }
 
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
-	res, err := resolvers.UnmarshalUUID(v)
+	res, err := scalars.UnmarshalUUID(v)
 	return uuid.UUID(res), graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
-	res := resolvers.MarshalUUID(v)
+	res := scalars.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6345,11 +6344,11 @@ func (ec *executionContext) unmarshalNInviteInput2ᚕgithubᚗcomᚋseg491Xᚑte
 	return res, nil
 }
 
-func (ec *executionContext) marshalNInvitePayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐInvitePayload(ctx context.Context, sel ast.SelectionSet, v sdl.InvitePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitePayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐInvitePayload(ctx context.Context, sel ast.SelectionSet, v InvitePayload) graphql.Marshaler {
 	return ec._InvitePayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNInvitePayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐInvitePayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []sdl.InvitePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitePayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐInvitePayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []InvitePayload) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6373,7 +6372,7 @@ func (ec *executionContext) marshalNInvitePayload2ᚕgithubᚗcomᚋseg491Xᚑte
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNInvitePayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐInvitePayload(ctx, sel, v[i])
+			ret[i] = ec.marshalNInvitePayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐInvitePayload(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6409,12 +6408,12 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := resolvers.UnmarshalTime(v)
+	res, err := scalars.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := resolvers.MarshalTime(v)
+	res := scalars.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6497,7 +6496,7 @@ func (ec *executionContext) marshalNUserAccountState2githubᚗcomᚋseg491Xᚑte
 	return res
 }
 
-func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v sdl.UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v UserPayload) graphql.Marshaler {
 	return ec._UserPayload(ctx, sel, &v)
 }
 
@@ -6523,11 +6522,11 @@ func (ec *executionContext) unmarshalNUserSelectionInput2ᚕgithubᚗcomᚋseg49
 	return res, nil
 }
 
-func (ec *executionContext) marshalNUserSelectionPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐUserSelectionPayload(ctx context.Context, sel ast.SelectionSet, v sdl.UserSelectionPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSelectionPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayload(ctx context.Context, sel ast.SelectionSet, v UserSelectionPayload) graphql.Marshaler {
 	return ec._UserSelectionPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐUserSelectionPayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []sdl.UserSelectionPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []UserSelectionPayload) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6551,7 +6550,7 @@ func (ec *executionContext) marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg49
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserSelectionPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚋsdlᚐUserSelectionPayload(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserSelectionPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayload(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

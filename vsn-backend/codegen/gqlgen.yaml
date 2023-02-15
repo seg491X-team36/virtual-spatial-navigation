@@ -14,8 +14,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: ./codegen/graph/sdl/sdl.go
-  package: sdl
+  filename: ./codegen/graph/models.go
+  package: graph
 
 # Where should the resolver implementations go?
 # resolver:
@@ -49,7 +49,7 @@ autobind:
 models:
   ID:
     model:
-      - github.com/seg491X-team36/vsn-backend/features/resolvers.UUID
+      - github.com/seg491X-team36/vsn-backend/features/resolvers/scalars.UUID
   Time:
     model:
-      - github.com/seg491X-team36/vsn-backend/features/resolvers.Time
+      - github.com/seg491X-team36/vsn-backend/features/resolvers/scalars.Time
