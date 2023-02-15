@@ -19,7 +19,7 @@ func TestMarshalTime(t *testing.T) {
 	for _, time := range times {
 		var b bytes.Buffer
 		MarshalTime(time).MarshalGQL(&b)
-		actual := string(b.Bytes())
+		actual := b.String()
 
 		assert.Equal(t, "\"2023-02-15T02:32:54.6498638Z\"", actual) // serialize to utc time
 	}
