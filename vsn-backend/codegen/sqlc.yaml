@@ -3,6 +3,8 @@ sql:
   - schema: "sql/schema.sql"
     queries:
       - "sql/example.sql"
+      - "sql/invite.sql"
+      - "sql/user.sql"
     engine: "postgresql"
     gen:
       go:

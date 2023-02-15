@@ -12,47 +12,47 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserAccountRole string
+type UserAccountState string
 
 const (
-	UserAccountRoleREGISTERED UserAccountRole = "REGISTERED"
-	UserAccountRoleREJECTED   UserAccountRole = "REJECTED"
-	UserAccountRoleACCEPTED   UserAccountRole = "ACCEPTED"
+	UserAccountStateREGISTERED UserAccountState = "REGISTERED"
+	UserAccountStateREJECTED   UserAccountState = "REJECTED"
+	UserAccountStateACCEPTED   UserAccountState = "ACCEPTED"
 )
 
-func (e *UserAccountRole) Scan(src interface{}) error {
+func (e *UserAccountState) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = UserAccountRole(s)
+		*e = UserAccountState(s)
 	case string:
-		*e = UserAccountRole(s)
+		*e = UserAccountState(s)
 	default:
-		return fmt.Errorf("unsupported scan type for UserAccountRole: %T", src)
+		return fmt.Errorf("unsupported scan type for UserAccountState: %T", src)
 	}
 	return nil
 }
 
-type NullUserAccountRole struct {
-	UserAccountRole UserAccountRole
-	Valid           bool // Valid is true if UserAccountRole is not NULL
+type NullUserAccountState struct {
+	UserAccountState UserAccountState
+	Valid            bool // Valid is true if UserAccountState is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullUserAccountRole) Scan(value interface{}) error {
+func (ns *NullUserAccountState) Scan(value interface{}) error {
 	if value == nil {
-		ns.UserAccountRole, ns.Valid = "", false
+		ns.UserAccountState, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.UserAccountRole.Scan(value)
+	return ns.UserAccountState.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullUserAccountRole) Value() (driver.Value, error) {
+func (ns NullUserAccountState) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return ns.UserAccountRole, nil
+	return ns.UserAccountState, nil
 }
 
 type Experiment struct {
@@ -78,6 +78,6 @@ type Invite struct {
 type User struct {
 	ID     uuid.UUID
 	Email  string
-	State  UserAccountRole
+	State  UserAccountState
 	Source string
 }
