@@ -14,8 +14,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: ./codegen/graph/models.go
-  package: graph
+  filename: ./codegen/graph/sdl/sdl.go
+  package: sdl
 
 # Where should the resolver implementations go?
 # resolver:
