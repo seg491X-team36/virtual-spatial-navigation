@@ -11,7 +11,7 @@ import (
 )
 
 type Server struct {
-	Experiments experiment.Endpoints
+	Experiments *experiment.Endpoints
 	Resolvers   graph.ResolverRoot
 }
 
