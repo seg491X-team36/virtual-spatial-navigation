@@ -14,5 +14,5 @@ func main() {
 		Resolvers:   &resolvers.Root{},
 	}
 
-	http.ListenAndServe("localhost:3001", srv.Handler())
+	_ = http.ListenAndServe("localhost:3001", srv.Handler())
 }
