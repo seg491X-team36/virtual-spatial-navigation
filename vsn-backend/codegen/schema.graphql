@@ -1,4 +1,4 @@
-scalar Datetime
+scalar Time
 
 enum UserAccountState {
     REGISTERED
@@ -30,7 +30,7 @@ type ExperimentResult {
     id: ID!
     user: User!
     experiment: Experiment!
-    completed: Datetime!
+    completed: Time!
     download: String! # tbd
 }
 

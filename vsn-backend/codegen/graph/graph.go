@@ -10,10 +10,13 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/domain/model"
+	"github.com/seg491X-team36/vsn-backend/features/resolvers"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -36,18 +39,12 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Arena() ArenaResolver
 	Experiment() ExperimentResolver
 	ExperimentResult() ExperimentResultResolver
 	Invite() InviteResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	User() UserResolver
-	ExperimentInput() ExperimentInputResolver
-	ExperimentUpdateDescriptionInput() ExperimentUpdateDescriptionInputResolver
-	ExperimentUpdateNameInput() ExperimentUpdateNameInputResolver
-	InviteInput() InviteInputResolver
-	UserSelectionInput() UserSelectionInputResolver
 }
 
 type DirectiveRoot struct {
@@ -55,13 +52,13 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Arena struct {
-		ID func(childComplexity int) int
+		Id func(childComplexity int) int
 	}
 
 	Experiment struct {
 		Arena       func(childComplexity int) int
 		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
+		Id          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Results     func(childComplexity int) int
 	}
@@ -75,7 +72,7 @@ type ComplexityRoot struct {
 		Completed  func(childComplexity int) int
 		Download   func(childComplexity int) int
 		Experiment func(childComplexity int) int
-		ID         func(childComplexity int) int
+		Id         func(childComplexity int) int
 		User       func(childComplexity int) int
 	}
 
@@ -101,17 +98,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Experiment  func(childComplexity int, id string) int
+		Experiment  func(childComplexity int, id uuid.UUID) int
 		Experiments func(childComplexity int) int
-		Invite      func(childComplexity int, id string) int
-		Invites     func(childComplexity int, supervised bool, experiments string) int
-		User        func(childComplexity int, id string) int
+		Invite      func(childComplexity int, id uuid.UUID) int
+		Invites     func(childComplexity int, supervised bool, experiments uuid.UUID) int
+		User        func(childComplexity int, id uuid.UUID) int
 		Users       func(childComplexity int, state *model.UserAccountState) int
 	}
 
 	User struct {
 		Email   func(childComplexity int) int
-		ID      func(childComplexity int) int
+		Id      func(childComplexity int) int
 		Invites func(childComplexity int) int
 		Results func(childComplexity int) int
 		State   func(childComplexity int) int
@@ -128,24 +125,17 @@ type ComplexityRoot struct {
 	}
 }
 
-type ArenaResolver interface {
-	ID(ctx context.Context, obj *model.Arena) (string, error)
-}
 type ExperimentResolver interface {
-	ID(ctx context.Context, obj *model.Experiment) (string, error)
-
 	Arena(ctx context.Context, obj *model.Experiment) (model.Arena, error)
 	Results(ctx context.Context, obj *model.Experiment) ([]model.ExperimentResult, error)
 }
 type ExperimentResultResolver interface {
-	ID(ctx context.Context, obj *model.ExperimentResult) (string, error)
 	User(ctx context.Context, obj *model.ExperimentResult) (model.User, error)
 	Experiment(ctx context.Context, obj *model.ExperimentResult) (model.Experiment, error)
-	Completed(ctx context.Context, obj *model.ExperimentResult) (string, error)
+
 	Download(ctx context.Context, obj *model.ExperimentResult) (string, error)
 }
 type InviteResolver interface {
-	ID(ctx context.Context, obj *model.Invite) (string, error)
 	User(ctx context.Context, obj *model.Invite) (model.User, error)
 	Experiment(ctx context.Context, obj *model.Invite) (model.Experiment, error)
 }
@@ -158,35 +148,16 @@ type MutationResolver interface {
 	ExperimentUpdateDescription(ctx context.Context, input model.ExperimentUpdateDescriptionInput) (ExperimentPayload, error)
 }
 type QueryResolver interface {
-	User(ctx context.Context, id string) (*model.User, error)
+	User(ctx context.Context, id uuid.UUID) (*model.User, error)
 	Users(ctx context.Context, state *model.UserAccountState) ([]model.User, error)
-	Invite(ctx context.Context, id string) (*model.Invite, error)
-	Invites(ctx context.Context, supervised bool, experiments string) ([]model.Invite, error)
-	Experiment(ctx context.Context, id string) (*model.Experiment, error)
+	Invite(ctx context.Context, id uuid.UUID) (*model.Invite, error)
+	Invites(ctx context.Context, supervised bool, experiments uuid.UUID) ([]model.Invite, error)
+	Experiment(ctx context.Context, id uuid.UUID) (*model.Experiment, error)
 	Experiments(ctx context.Context) ([]model.Experiment, error)
 }
 type UserResolver interface {
-	ID(ctx context.Context, obj *model.User) (string, error)
-
 	Invites(ctx context.Context, obj *model.User) ([]model.Invite, error)
 	Results(ctx context.Context, obj *model.User) ([]model.ExperimentResult, error)
-}
-
-type ExperimentInputResolver interface {
-	ArenaID(ctx context.Context, obj *model.ExperimentInput, data string) error
-}
-type ExperimentUpdateDescriptionInputResolver interface {
-	ExperimentID(ctx context.Context, obj *model.ExperimentUpdateDescriptionInput, data string) error
-}
-type ExperimentUpdateNameInputResolver interface {
-	ExperimentID(ctx context.Context, obj *model.ExperimentUpdateNameInput, data string) error
-}
-type InviteInputResolver interface {
-	UserID(ctx context.Context, obj *model.InviteInput, data string) error
-	ExperimentID(ctx context.Context, obj *model.InviteInput, data string) error
-}
-type UserSelectionInputResolver interface {
-	UserID(ctx context.Context, obj *model.UserSelectionInput, data string) error
 }
 
 type executableSchema struct {
@@ -205,11 +176,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	switch typeName + "." + field {
 
 	case "Arena.id":
-		if e.complexity.Arena.ID == nil {
+		if e.complexity.Arena.Id == nil {
 			break
 		}
 
-		return e.complexity.Arena.ID(childComplexity), true
+		return e.complexity.Arena.Id(childComplexity), true
 
 	case "Experiment.arena":
 		if e.complexity.Experiment.Arena == nil {
@@ -226,11 +197,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Experiment.Description(childComplexity), true
 
 	case "Experiment.id":
-		if e.complexity.Experiment.ID == nil {
+		if e.complexity.Experiment.Id == nil {
 			break
 		}
 
-		return e.complexity.Experiment.ID(childComplexity), true
+		return e.complexity.Experiment.Id(childComplexity), true
 
 	case "Experiment.name":
 		if e.complexity.Experiment.Name == nil {
@@ -282,11 +253,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.ExperimentResult.Experiment(childComplexity), true
 
 	case "ExperimentResult.id":
-		if e.complexity.ExperimentResult.ID == nil {
+		if e.complexity.ExperimentResult.Id == nil {
 			break
 		}
 
-		return e.complexity.ExperimentResult.ID(childComplexity), true
+		return e.complexity.ExperimentResult.Id(childComplexity), true
 
 	case "ExperimentResult.user":
 		if e.complexity.ExperimentResult.User == nil {
@@ -419,7 +390,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Experiment(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Experiment(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.experiments":
 		if e.complexity.Query.Experiments == nil {
@@ -438,7 +409,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Invite(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Invite(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.invites":
 		if e.complexity.Query.Invites == nil {
@@ -450,7 +421,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Invites(childComplexity, args["supervised"].(bool), args["experiments"].(string)), true
+		return e.complexity.Query.Invites(childComplexity, args["supervised"].(bool), args["experiments"].(uuid.UUID)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -462,7 +433,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.User(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.User(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -484,11 +455,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.User.Email(childComplexity), true
 
 	case "User.id":
-		if e.complexity.User.ID == nil {
+		if e.complexity.User.Id == nil {
 			break
 		}
 
-		return e.complexity.User.ID(childComplexity), true
+		return e.complexity.User.Id(childComplexity), true
 
 	case "User.invites":
 		if e.complexity.User.Invites == nil {
@@ -612,7 +583,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphql", Input: `scalar Datetime
+	{Name: "../schema.graphql", Input: `scalar Time
 
 enum UserAccountState {
     REGISTERED
@@ -644,7 +615,7 @@ type ExperimentResult {
     id: ID!
     user: User!
     experiment: Experiment!
-    completed: Datetime!
+    completed: Time!
     download: String! # tbd
 }
 
@@ -841,10 +812,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_experiment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 uuid.UUID
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -856,10 +827,10 @@ func (ec *executionContext) field_Query_experiment_args(ctx context.Context, raw
 func (ec *executionContext) field_Query_invite_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 uuid.UUID
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -880,10 +851,10 @@ func (ec *executionContext) field_Query_invites_args(ctx context.Context, rawArg
 		}
 	}
 	args["supervised"] = arg0
-	var arg1 string
+	var arg1 uuid.UUID
 	if tmp, ok := rawArgs["experiments"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experiments"))
-		arg1, err = ec.unmarshalNID2string(ctx, tmp)
+		arg1, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -895,10 +866,10 @@ func (ec *executionContext) field_Query_invites_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 uuid.UUID
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -974,7 +945,7 @@ func (ec *executionContext) _Arena_id(ctx context.Context, field graphql.Collect
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Arena().ID(rctx, obj)
+		return obj.Id, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -986,17 +957,17 @@ func (ec *executionContext) _Arena_id(ctx context.Context, field graphql.Collect
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Arena_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Arena",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -1018,7 +989,7 @@ func (ec *executionContext) _Experiment_id(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Experiment().ID(rctx, obj)
+		return obj.Id, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1030,17 +1001,17 @@ func (ec *executionContext) _Experiment_id(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Experiment_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Experiment",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -1348,7 +1319,7 @@ func (ec *executionContext) _ExperimentResult_id(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ExperimentResult().ID(rctx, obj)
+		return obj.Id, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1360,17 +1331,17 @@ func (ec *executionContext) _ExperimentResult_id(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ExperimentResult_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ExperimentResult",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -1504,7 +1475,7 @@ func (ec *executionContext) _ExperimentResult_completed(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ExperimentResult().Completed(rctx, obj)
+		return obj.Completed, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1516,19 +1487,19 @@ func (ec *executionContext) _ExperimentResult_completed(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNDatetime2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ExperimentResult_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ExperimentResult",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Datetime does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1592,7 +1563,7 @@ func (ec *executionContext) _Invite_id(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Invite().ID(rctx, obj)
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1604,17 +1575,17 @@ func (ec *executionContext) _Invite_id(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Invite_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Invite",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2247,7 +2218,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().User(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2376,7 +2347,7 @@ func (ec *executionContext) _Query_invite(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Invite(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Invite(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2437,7 +2408,7 @@ func (ec *executionContext) _Query_invites(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Invites(rctx, fc.Args["supervised"].(bool), fc.Args["experiments"].(string))
+		return ec.resolvers.Query().Invites(rctx, fc.Args["supervised"].(bool), fc.Args["experiments"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2501,7 +2472,7 @@ func (ec *executionContext) _Query_experiment(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Experiment(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Experiment(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2746,7 +2717,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.User().ID(rctx, obj)
+		return obj.Id, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2758,17 +2729,17 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -4959,11 +4930,8 @@ func (ec *executionContext) unmarshalInputExperimentInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			it.ArenaID, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.ExperimentInput().ArenaID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		}
@@ -4990,11 +4958,8 @@ func (ec *executionContext) unmarshalInputExperimentUpdateDescriptionInput(ctx c
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experimentId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			it.ExperimentID, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.ExperimentUpdateDescriptionInput().ExperimentID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "description":
@@ -5029,11 +4994,8 @@ func (ec *executionContext) unmarshalInputExperimentUpdateNameInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experimentId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			it.ExperimentID, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.ExperimentUpdateNameInput().ExperimentID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "name":
@@ -5068,22 +5030,16 @@ func (ec *executionContext) unmarshalInputInviteInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.InviteInput().UserID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "experimentId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("experimentId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			it.ExperimentID, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.InviteInput().ExperimentID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "supervised":
@@ -5118,11 +5074,8 @@ func (ec *executionContext) unmarshalInputUserSelectionInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
-				return it, err
-			}
-			if err = ec.resolvers.UserSelectionInput().UserID(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "accept":
@@ -5158,25 +5111,12 @@ func (ec *executionContext) _Arena(ctx context.Context, sel ast.SelectionSet, ob
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Arena")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Arena_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Arena_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5199,25 +5139,12 @@ func (ec *executionContext) _Experiment(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Experiment")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Experiment_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Experiment_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "name":
 
 			out.Values[i] = ec._Experiment_name(ctx, field, obj)
@@ -5323,25 +5250,12 @@ func (ec *executionContext) _ExperimentResult(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ExperimentResult")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ExperimentResult_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._ExperimentResult_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "user":
 			field := field
 
@@ -5383,25 +5297,12 @@ func (ec *executionContext) _ExperimentResult(ctx context.Context, sel ast.Selec
 
 			})
 		case "completed":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ExperimentResult_completed(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._ExperimentResult_completed(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "download":
 			field := field
 
@@ -5444,25 +5345,12 @@ func (ec *executionContext) _Invite(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Invite")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Invite_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Invite_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "user":
 			field := field
 
@@ -5784,25 +5672,12 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
 		case "id":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._User_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
 			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "email":
 
 			out.Values[i] = ec._User_email(ctx, field, obj)
@@ -6269,21 +6144,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNDatetime2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNDatetime2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) marshalNExperiment2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐExperiment(ctx context.Context, sel ast.SelectionSet, v model.Experiment) graphql.Marshaler {
 	return ec._Experiment(ctx, sel, &v)
 }
@@ -6399,13 +6259,13 @@ func (ec *executionContext) unmarshalNExperimentUpdateNameInput2githubᚗcomᚋs
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
+	res, err := resolvers.UnmarshalUUID(v)
+	return uuid.UUID(res), graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
+	res := resolvers.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6539,6 +6399,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := resolvers.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := resolvers.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
