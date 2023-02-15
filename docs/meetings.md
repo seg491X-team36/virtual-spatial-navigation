@@ -117,3 +117,40 @@ Backend (1-2 people)
 
 Game dev (3 people)
 - Map creator can prototype it in Unity?
+
+# 15/02/2023
+## Frontend
+- Wireframes make sense to her
+- Didn’t say to change anything 
+- Aesthetics doesn't matter too much but going with a simple professional look is better 
+- Darker 
+- Barebones
+- Don’t want to prime subject into thinking about science before the experiment
+- Neutral and minimalist
+## Backend
+- Filezilla
+-- Open to the idea
+-- Set up lab computer that pulls files from server then uploads it to OneDrive
+-- She thinks she can get it set up
+-- Wants it to be simple enough to be able to teach someone else how to use it
+-- Not confusing to understand
+## Game Development
+- Wall designs to help people guide themselves
+- Placeholders currently
+- Any shapes/colors she actually wants to use?
+- White square with black symbol inside
+- High contrast
+- White piece of paper with black shape
+- Vertical bars, horizontal bars, square, and X
+- Scale:
+-- How big are they compared to the walls?
+-- Wall is 45 cm tall from the floor to the top
+-- Symbols are regular 8.5 inch paper square 
+## Server Options
+- Talk to her professor about domain/server costs
+- He has research funding for something like the server
+- Alliance Canada free server for research/academic purposes
+- She will update her professor about Ubuntu server
+- Might have lab tech who can do it but he might be leaving
+- Requesting a server
+- Need to send her the links
