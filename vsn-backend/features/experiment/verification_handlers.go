@@ -14,7 +14,7 @@ type VerificationHandlers struct {
 func (v *VerificationHandlers) EnterEmail() http.HandlerFunc {
 	return postRequestWrapper(func(ctx context.Context, req verificationEmailRequest) verificationEmailResponse {
 		// call the enter email method of the verification service
-		v.VerificationService.EnterEmail(req.Email)
+		_ = v.VerificationService.EnterEmail(req.Email)
 		return verificationEmailResponse{}
 	})
 }
