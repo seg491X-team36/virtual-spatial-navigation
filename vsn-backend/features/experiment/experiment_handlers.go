@@ -73,7 +73,10 @@ func (e *ExperimentHandlers) StopRound() http.HandlerFunc {
 func (e *ExperimentHandlers) Record() http.HandlerFunc {
 	return postRequestWrapper(func(ctx context.Context, req recordDataRequest) recordDataResponse {
 		token, _ := security.AuthToken(ctx)
-		e.ExperimentService.Record(token.UserId, req) // experiment service record method
-		return recordDataResponse{}
+		err := e.ExperimentService.Record(token.UserId, req) // experiment service record method
+
+		return recordDataResponse{
+			Error: errWrapper(err),
+		}
 	})
 }
