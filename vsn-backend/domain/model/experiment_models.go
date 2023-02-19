@@ -6,11 +6,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type ExperimentResumeOption string
+type ExperimentResumeConfig string
 
 const (
-	CONTINUE_ROUND = ExperimentResumeOption("CONTINUE_ROUND")
-	RESET_ROUND    = ExperimentResumeOption("RESET_ROUND")
+	CONTINUE_ROUND = ExperimentResumeConfig("CONTINUE_ROUND")
+	RESET_ROUND    = ExperimentResumeConfig("RESET_ROUND")
 )
 
 type Experiment struct {
@@ -20,6 +20,7 @@ type Experiment struct {
 }
 
 type ExperimentConfig struct {
+	ResumeConfig ExperimentResumeConfig
 }
 
 type ExperimentResult struct {
