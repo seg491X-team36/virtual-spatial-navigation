@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/seg491X-team36/vsn-backend/domain/model"
 )
 
 type verificationEmailRequest struct {
@@ -38,8 +39,8 @@ type startExperimentRequest struct {
 }
 
 type startExperimentResponse struct {
-	Experiment *experimentConfig `json:"experiment"`
-	Error      *string           `json:"error"`
+	Experiment *model.ExperimentConfig `json:"experiment"`
+	Error      *string                 `json:"error"`
 }
 
 type startRoundRequest struct {
@@ -47,8 +48,8 @@ type startRoundRequest struct {
 }
 
 type startRoundResponse struct {
-	Status experimentStatus `json:"status"`
-	Error  *string          `json:"error"`
+	Status *ExperimentStatus `json:"status"`
+	Error  *string           `json:"error"`
 }
 
 type stopRoundRequest struct {
@@ -56,16 +57,16 @@ type stopRoundRequest struct {
 }
 
 type stopRoundResponse struct {
-	Status experimentStatus `json:"status"`
-	Error  *string          `json:"error"`
+	Status *ExperimentStatus `json:"status"`
+	Error  *string           `json:"error"`
 }
 
-type frameRequest struct {
+type recordDataRequest struct {
 	Frames []frame `json:"frames"`
 	Events []event `json:"events"`
 }
 
-type frameResponse struct {
+type recordDataResponse struct {
 	Error *string `json:"error"`
 }
 
@@ -82,18 +83,4 @@ type frame struct {
 type event struct {
 	Name      string    `json:"name"`
 	Timestamp time.Time `json:"timestamp"`
-}
-
-type experimentConfig struct {
-	// TODO
-	// arena id
-	// doors
-	// objects
-	// reward position
-}
-
-type experimentStatus struct {
-	RoundNumber     int `json:"round"`
-	RoundsRemaining int `json:"remaining"`
-	RoundsTotal     int `json:"total"`
 }
