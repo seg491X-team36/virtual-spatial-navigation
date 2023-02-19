@@ -1,4 +1,47 @@
-package experiment
+package model
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type ExperimentResumeOption string
+
+const (
+	CONTINUE_ROUND = ExperimentResumeOption("CONTINUE_ROUND")
+	RESET_ROUND    = ExperimentResumeOption("RESET_ROUND")
+)
+
+type Experiment struct {
+	Id          uuid.UUID
+	Name        string
+	Description string
+}
+
+type ExperimentConfig struct {
+}
+
+type ExperimentResult struct {
+	Id           uuid.UUID
+	UserId       uuid.UUID // id used to store the experiment data
+	ExperimentId uuid.UUID
+	Completed    time.Time
+}
+
+type ExperimentInput struct {
+	ArenaID uuid.UUID
+}
+
+type ExperimentUpdateDescriptionInput struct {
+	ExperimentID uuid.UUID
+	Description  string
+}
+
+type ExperimentUpdateNameInput struct {
+	ExperimentID uuid.UUID
+	Name         string
+}
 
 /* experiment ExperimentStatus struct
 if an experiment has 3 rounds the state should go:

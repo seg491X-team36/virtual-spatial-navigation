@@ -11,10 +11,10 @@ import (
 
 // ExperimentService interface required by ExperimentHandlers
 type ExperimentService interface {
-	Pending(userId uuid.UUID) (experimentId uuid.UUID, pending int)
-	StartExperiment(userId, experimentId uuid.UUID) (*model.ExperimentConfig, error)
-	StartRound(userId uuid.UUID) (*ExperimentStatus, error)
-	StopRound(userId uuid.UUID) (*ExperimentStatus, error)
+	Pending(userId uuid.UUID) pendingExperimentsResponse
+	StartExperiment(userId, experimentId uuid.UUID) startExperimentResponse
+	StartRound(userId uuid.UUID) (*model.ExperimentStatus, error)
+	StopRound(userId uuid.UUID) (*model.ExperimentStatus, error)
 	Record(userId uuid.UUID, request recordDataRequest) error
 }
 
@@ -25,24 +25,14 @@ type ExperimentHandlers struct {
 func (e *ExperimentHandlers) Pending() http.HandlerFunc {
 	return postRequestWrapper(func(ctx context.Context, _ pendingExperimentsRequest) pendingExperimentsResponse {
 		token, _ := security.AuthToken(ctx)
-		experimentId, pending := e.ExperimentService.Pending(token.UserId) // experiment service pending method
-
-		return pendingExperimentsResponse{
-			ExperimentId: &experimentId, // could make this nil when pending is 0...
-			Pending:      pending,
-		}
+		return e.ExperimentService.Pending(token.UserId) // experiment service pending method
 	})
 }
 
 func (e *ExperimentHandlers) StartExperiment() http.HandlerFunc {
 	return postRequestWrapper(func(ctx context.Context, req startExperimentRequest) startExperimentResponse {
 		token, _ := security.AuthToken(ctx)
-		config, err := e.ExperimentService.StartExperiment(token.UserId, req.ExperimentId) // experiment service start experiment method
-
-		return startExperimentResponse{
-			Experiment: config,
-			Error:      errWrapper(err),
-		}
+		return e.ExperimentService.StartExperiment(token.UserId, req.ExperimentId) // experiment service start experiment method
 	})
 }
 
