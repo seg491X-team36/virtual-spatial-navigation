@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -30,41 +28,6 @@ type Invite struct {
 
 type Arena struct {
 	Id uuid.UUID
-}
-
-type Experiment struct {
-	Id          uuid.UUID
-	Name        string
-	Description string
-}
-
-type ExperimentConfig struct {
-	// TODO
-	// arena id
-	// doors
-	// objects
-	// reward position
-}
-
-type ExperimentResult struct {
-	Id           uuid.UUID
-	UserId       uuid.UUID // id used to store the experiment data
-	ExperimentId uuid.UUID
-	Completed    time.Time
-}
-
-type ExperimentInput struct {
-	ArenaID uuid.UUID
-}
-
-type ExperimentUpdateDescriptionInput struct {
-	ExperimentID uuid.UUID
-	Description  string
-}
-
-type ExperimentUpdateNameInput struct {
-	ExperimentID uuid.UUID
-	Name         string
 }
 
 type InviteInput struct {

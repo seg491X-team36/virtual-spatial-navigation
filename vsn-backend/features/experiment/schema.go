@@ -30,16 +30,19 @@ type pendingExperimentsRequest struct {
 }
 
 type pendingExperimentsResponse struct {
-	ExperimentId *uuid.UUID `json:"experimentId"` // the first pending experiment id
-	Pending      int        `json:"pending"`      // total pending experiments
+	ExperimentId         *uuid.UUID `json:"experimentId"`         // experiment id that can be started or resumed
+	ExperimentInProgress bool       `json:"experimentInProgress"` // if the experiment is in progress
+	Pending              int        `json:"pending"`              // total pending experiments (does not include in progress)
 }
 
 type startExperimentRequest struct {
-	ExperimentId uuid.UUID `json:"experimentId"`
+	ExperimentId uuid.UUID `json:"experimentId"` // experiment id to start
 }
 
 type startExperimentResponse struct {
 	Experiment *model.ExperimentConfig `json:"experiment"`
+	Frame      *frame                  `json:"frame"`  // the last frame we recorded. only present when resuming and continuing from last frame
+	Status     *model.ExperimentStatus `json:"status"` // always present starting or resuming
 	Error      *string                 `json:"error"`
 }
 
@@ -48,8 +51,8 @@ type startRoundRequest struct {
 }
 
 type startRoundResponse struct {
-	Status *ExperimentStatus `json:"status"`
-	Error  *string           `json:"error"`
+	Status *model.ExperimentStatus `json:"status"`
+	Error  *string                 `json:"error"`
 }
 
 type stopRoundRequest struct {
@@ -57,8 +60,8 @@ type stopRoundRequest struct {
 }
 
 type stopRoundResponse struct {
-	Status *ExperimentStatus `json:"status"`
-	Error  *string           `json:"error"`
+	Status *model.ExperimentStatus `json:"status"`
+	Error  *string                 `json:"error"`
 }
 
 type recordDataRequest struct {

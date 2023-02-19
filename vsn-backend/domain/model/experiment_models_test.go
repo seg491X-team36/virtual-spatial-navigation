@@ -1,4 +1,4 @@
-package experiment
+package model
 
 import (
 	"testing"
