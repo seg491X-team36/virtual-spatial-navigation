@@ -10,8 +10,9 @@ import (
 
 func main() {
 	srv := &server.Server{
-		Experiments: &experiment.Endpoints{},
-		Resolvers:   &resolvers.Root{},
+		ExperimentHandlers:   &experiment.ExperimentHandlers{},
+		VerificationHandlers: &experiment.VerificationHandlers{},
+		Resolvers:            &resolvers.Root{},
 	}
 
 	_ = http.ListenAndServe("localhost:3001", srv.Handler())
