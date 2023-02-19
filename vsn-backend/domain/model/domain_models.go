@@ -36,7 +36,14 @@ type Experiment struct {
 	Id          uuid.UUID
 	Name        string
 	Description string
-	ArenaId     uuid.UUID
+}
+
+type ExperimentConfig struct {
+	// TODO
+	// arena id
+	// doors
+	// objects
+	// reward position
 }
 
 type ExperimentResult struct {

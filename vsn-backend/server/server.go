@@ -11,8 +11,9 @@ import (
 )
 
 type Server struct {
-	Experiments *experiment.Endpoints
-	Resolvers   graph.ResolverRoot
+	ExperimentHandlers   *experiment.ExperimentHandlers
+	VerificationHandlers *experiment.VerificationHandlers
+	Resolvers            graph.ResolverRoot
 }
 
 func (s *Server) Handler() http.Handler {
@@ -27,8 +28,6 @@ func (s *Server) Handler() http.Handler {
 	})
 
 	router.Get("/graphql", playground.Handler("vsn-playground", "/graphql"))
-
-	s.Experiments.Bind(router)
-
+	
 	return router
 }
