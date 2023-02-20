@@ -1,10 +1,17 @@
 package experiment
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/domain/model"
+)
+
+var (
+	errExperimentNotFound           = errors.New("experiment not found")
+	errExperimentRoundInProgress    = errors.New("experiment round already in progress")
+	errExperimentRoundNotInProgress = errors.New("experiment round not in progress")
 )
 
 type verificationEmailRequest struct {
@@ -39,11 +46,15 @@ type startExperimentRequest struct {
 	ExperimentId uuid.UUID `json:"experimentId"` // experiment id to start
 }
 
+type startExperimentData struct {
+	Experiment model.ExperimentConfig `json:"experiment"`
+	Status     model.ExperimentStatus `json:"status"` // always present starting or resuming
+	Frame      *frame                 `json:"frame"`  // the last frame recorded. only present when resuming and continuing from last frame
+}
+
 type startExperimentResponse struct {
-	Experiment *model.ExperimentConfig `json:"experiment"`
-	Frame      *frame                  `json:"frame"`  // the last frame we recorded. only present when resuming and continuing from last frame
-	Status     *model.ExperimentStatus `json:"status"` // always present starting or resuming
-	Error      *string                 `json:"error"`
+	Data  *startExperimentData
+	Error *string `json:"error"`
 }
 
 type startRoundRequest struct {
@@ -56,7 +67,7 @@ type startRoundResponse struct {
 }
 
 type stopRoundRequest struct {
-	// no request information needed
+	Data experimentData `json:"data"` // the remaining data to ensure all data is recorded before stopping the round
 }
 
 type stopRoundResponse struct {
@@ -65,12 +76,16 @@ type stopRoundResponse struct {
 }
 
 type recordDataRequest struct {
-	Frames []frame `json:"frames"`
-	Events []event `json:"events"`
+	Data experimentData `json:"data"`
 }
 
 type recordDataResponse struct {
 	Error *string `json:"error"`
+}
+
+type experimentData struct {
+	Frames []frame `json:"frames"`
+	Events []event `json:"events"`
 }
 
 type frame struct {
