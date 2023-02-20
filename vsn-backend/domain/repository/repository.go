@@ -18,6 +18,7 @@ type InviteRepository interface {
 	GetInvite(ctx context.Context, id uuid.UUID) (model.Invite, error)
 	GetInvitesByExperimentId(ctx context.Context, supervised bool, id uuid.UUID) ([]model.Invite, error)
 	CreateInvite(ctx context.Context, input model.InviteInput) (model.Invite, error)
+	GetPendingInvites(ctx context.Context, userId uuid.UUID) []model.Invite
 }
 
 type ExperimentRepository interface {
