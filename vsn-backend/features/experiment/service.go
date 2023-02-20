@@ -47,18 +47,18 @@ func (s *Service) Pending(ctx context.Context, userId uuid.UUID) pendingExperime
 	}
 }
 
-func (s *Service) StartExperiment(userId, experimentId uuid.UUID) startExperimentResponse {
+func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid.UUID) startExperimentResponse {
 	return startExperimentResponse{}
 }
 
-func (s *Service) StartRound(userId uuid.UUID) (*model.ExperimentStatus, error) {
+func (s *Service) StartRound(ctx context.Context, userId uuid.UUID) (*model.ExperimentStatus, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (s *Service) StopRound(userId uuid.UUID) (*model.ExperimentStatus, error) {
+func (s *Service) StopRound(ctx context.Context, userId uuid.UUID) (*model.ExperimentStatus, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (s *Service) Record(userId uuid.UUID, request recordDataRequest) error {
+func (s *Service) Record(ctx context.Context, userId uuid.UUID, request recordDataRequest) error {
 	return errors.New("not implemented")
 }
