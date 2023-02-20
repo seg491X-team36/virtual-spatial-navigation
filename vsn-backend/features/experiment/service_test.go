@@ -136,7 +136,7 @@ func TestStartAndStopRound(t *testing.T) {
 
 		// start round gives an error because the round is in progress
 		status, err = service.StartRound(ctx, userId1)
-		assert.Error(t, errExperimentRoundInProgress)
+		assert.ErrorIs(t, err, errExperimentRoundInProgress)
 		assert.Equal(t, expected, status) // status does not change
 
 		// stop round
@@ -150,6 +150,6 @@ func TestStartAndStopRound(t *testing.T) {
 	}
 
 	_, err = experiments.Get(userId1)
-	assert.Error(t, errExperimentNotFound) // the experiment was deleted
+	assert.ErrorIs(t, err, errExperimentNotFound) // the experiment was deleted
 
 }
