@@ -1,8 +1,6 @@
 package experiment
 
 import (
-	"errors"
-
 	"github.com/google/uuid"
 )
 
@@ -13,7 +11,11 @@ type activeExperimentCache struct {
 func (cache *activeExperimentCache) Get(userId uuid.UUID) (*activeExperiment, error) {
 	experiment, ok := cache.experiments[userId]
 	if !ok {
-		return nil, errors.New("not found")
+		return nil, errExperimentNotFound
 	}
 	return experiment, nil
+}
+
+func (cache *activeExperimentCache) Delete(userId uuid.UUID) {
+	delete(cache.experiments, userId)
 }
