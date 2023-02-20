@@ -47,18 +47,47 @@ func (s *Service) Pending(ctx context.Context, userId uuid.UUID) pendingExperime
 	}
 }
 
-func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid.UUID) startExperimentResponse {
-	return startExperimentResponse{}
+func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid.UUID) (*startExperimentData, error) {
+	return nil, errors.New("not implemented")
 }
 
 func (s *Service) StartRound(ctx context.Context, userId uuid.UUID) (*model.ExperimentStatus, error) {
-	return nil, errors.New("not implemented")
+	// get the active experiment
+	experiment, err := s.activeExperiments.Get(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	// call start round
+	status, err := experiment.StartRound()
+	return &status, err
 }
 
-func (s *Service) StopRound(ctx context.Context, userId uuid.UUID) (*model.ExperimentStatus, error) {
-	return nil, errors.New("not implemented")
+func (s *Service) StopRound(ctx context.Context, userId uuid.UUID, data experimentData) (*model.ExperimentStatus, error) {
+	// get the active experiment
+	experiment, err := s.activeExperiments.Get(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	// call stop round
+	status, err := experiment.StopRound(data)
+
+	// the experiment is done
+	if status.Done() {
+		s.activeExperiments.Delete(userId)
+	}
+
+	return &status, err
 }
 
-func (s *Service) Record(ctx context.Context, userId uuid.UUID, request recordDataRequest) error {
-	return errors.New("not implemented")
+func (s *Service) Record(ctx context.Context, userId uuid.UUID, data experimentData) error {
+	// get the active experiment
+	experiment, err := s.activeExperiments.Get(userId)
+	if err != nil {
+		return err
+	}
+
+	experiment.Record(data)
+	return nil
 }
