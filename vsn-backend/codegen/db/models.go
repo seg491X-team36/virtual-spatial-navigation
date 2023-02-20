@@ -63,13 +63,14 @@ type Experiment struct {
 
 type ExperimentResult struct {
 	ID           uuid.UUID
+	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Completed    time.Time
 }
 
 type Invite struct {
 	ID           uuid.UUID
+	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
 	Supervised   bool
