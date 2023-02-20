@@ -20,3 +20,8 @@ INSERT INTO
 VALUES
     ($1, $2, $3)
 RETURNING *;
+
+-- name: GetPendingInvites :many
+SELECT * FROM invites WHERE invites.user_id = $1 AND invites.experiment_id NOT IN 
+(SELECT experiment_id FROM experiment_results WHERE experiment_results.user_id = $1)
+ORDER BY invites.created_at ASC;

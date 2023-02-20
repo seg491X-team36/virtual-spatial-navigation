@@ -25,9 +25,9 @@ type ExperimentConfig struct {
 
 type ExperimentResult struct {
 	Id           uuid.UUID
+	CreatedAt    time.Time
 	UserId       uuid.UUID // id used to store the experiment data
 	ExperimentId uuid.UUID
-	Completed    time.Time
 }
 
 type ExperimentInput struct {

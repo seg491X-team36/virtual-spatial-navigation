@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -21,6 +23,7 @@ type User struct {
 
 type Invite struct {
 	ID           uuid.UUID
+	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
 	Supervised   bool

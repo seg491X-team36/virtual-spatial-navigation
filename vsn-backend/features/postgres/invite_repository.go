@@ -54,3 +54,11 @@ func (repository *InviteRepository) CreateInvite(
 	})
 	return model.Invite(invite), err
 }
+
+func (repository *InviteRepository) GetPendingInvites(ctx context.Context, userId uuid.UUID) []model.Invite {
+	invites, err := repository.Query.GetPendingInvites(ctx, userId)
+	if err != nil {
+		return []model.Invite{}
+	}
+	return convertInvites(invites)
+}
