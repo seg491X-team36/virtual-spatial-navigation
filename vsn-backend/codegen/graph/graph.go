@@ -132,7 +132,7 @@ type ExperimentResolver interface {
 type ExperimentResultResolver interface {
 	User(ctx context.Context, obj *model.ExperimentResult) (model.User, error)
 	Experiment(ctx context.Context, obj *model.ExperimentResult) (model.Experiment, error)
-
+	Completed(ctx context.Context, obj *model.ExperimentResult) (time.Time, error)
 	Download(ctx context.Context, obj *model.ExperimentResult) (string, error)
 }
 type InviteResolver interface {
@@ -1475,7 +1475,7 @@ func (ec *executionContext) _ExperimentResult_completed(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Completed, nil
+		return ec.resolvers.ExperimentResult().Completed(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1496,8 +1496,8 @@ func (ec *executionContext) fieldContext_ExperimentResult_completed(ctx context.
 	fc = &graphql.FieldContext{
 		Object:     "ExperimentResult",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
 		},
@@ -5297,12 +5297,25 @@ func (ec *executionContext) _ExperimentResult(ctx context.Context, sel ast.Selec
 
 			})
 		case "completed":
+			field := field
 
-			out.Values[i] = ec._ExperimentResult_completed(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ExperimentResult_completed(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "download":
 			field := field
 
