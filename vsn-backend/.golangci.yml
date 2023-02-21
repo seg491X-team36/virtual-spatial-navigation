@@ -1,0 +1,8 @@
+linters-settings:
+  staticcheck:
+    checks:
+      - all
+      - "-SA1029" # disable this rule
+linters:
+  disable:
+    - unused

@@ -9,9 +9,9 @@ import (
 type UserAccountState string
 
 const (
-	UserAccountStateRegistered UserAccountState = "REGISTERED"
-	UserAccountStateRejected   UserAccountState = "REJECTED"
-	UserAccountStateAccepted   UserAccountState = "ACCEPTED"
+	REGISTERED = UserAccountState("REGISTERED")
+	REJECTED   = UserAccountState("REJECTED")
+	ACCEPTED   = UserAccountState("ACCEPTED")
 )
 
 type User struct {
@@ -22,9 +22,10 @@ type User struct {
 }
 
 type Invite struct {
-	Id           uuid.UUID
-	UserId       uuid.UUID
-	ExperimentId uuid.UUID
+	ID           uuid.UUID
+	CreatedAt    time.Time
+	UserID       uuid.UUID
+	ExperimentID uuid.UUID
 	Supervised   bool
 }
 
@@ -32,41 +33,13 @@ type Arena struct {
 	Id uuid.UUID
 }
 
-type Experiment struct {
-	Id          uuid.UUID
-	Name        string
-	Description string
-	ArenaId     int
-}
-
-type ExperimentResult struct {
-	Id           uuid.UUID
-	UserId       uuid.UUID // id used to store the experiment data
-	ExperimentId uuid.UUID
-	Completed    time.Time
-}
-
-type ExperimentInput struct {
-	ArenaID string
-}
-
-type ExperimentUpdateDescriptionInput struct {
-	ExperimentID string
-	Description  string
-}
-
-type ExperimentUpdateNameInput struct {
-	ExperimentID string
-	Name         string
-}
-
 type InviteInput struct {
-	UserID       string
-	ExperimentID string
-	Supervise    bool
+	UserID       uuid.UUID
+	ExperimentID uuid.UUID
+	Supervised   bool
 }
 
 type UserSelectionInput struct {
-	UserID string
+	UserID uuid.UUID
 	Accept bool
 }
