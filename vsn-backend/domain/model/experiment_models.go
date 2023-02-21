@@ -17,9 +17,11 @@ type Experiment struct {
 	Id          uuid.UUID
 	Name        string
 	Description string
+	Config      ExperimentConfig
 }
 
 type ExperimentConfig struct {
+	RoundsTotal  int
 	ResumeConfig ExperimentResumeConfig
 }
 
