@@ -50,12 +50,12 @@ type ExperimentUpdateNameInput struct {
 if an experiment has 3 rounds the state should go:
 
 start experiment -> {"roundInProgress": false, "roundNumber": 0}
-start round -> {"roundInProgress": true, "roundNumber": 1}
+start round -> {"roundInProgress": true, "roundNumber": 0}
 stop round -> {"roundInProgress": false, "roundNumber": 1}
-start round -> {"roundInProgress": true, "roundNumber": 2}
+start round -> {"roundInProgress": true "roundNumber": 1}
 stop round -> {"roundInProgress": false, "roundNumber": 2}
-start round -> {"roundInProgress": true, "roundNumber": 3}
-stop round -> {"roundInProgress": false, "roundNumber": 3}
+start round -> {"roundInProgress": true, "roundNumber": 2}
+stop round -> {"roundInProgress": false, "roundNumber": 3} DONE
 */
 type ExperimentStatus struct {
 	RoundInProgress bool `json:"roundInProgress"`
