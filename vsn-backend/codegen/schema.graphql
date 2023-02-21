@@ -6,7 +6,7 @@ enum UserAccountState {
     ACCEPTED
 }
 
-enum ResumeConfig {
+enum ExperimentResumeConfig {
     RESET_ROUND
     CONTINUE_ROUND
 }
@@ -32,7 +32,7 @@ type Experiment {
 
 type ExperimentConfig {
     Rounds: Int!
-    Resume: ResumeConfig!
+    Resume: ExperimentResumeConfig!
 }
 
 type ExperimentResult {
