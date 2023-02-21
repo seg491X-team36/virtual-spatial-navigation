@@ -22,15 +22,3 @@ func (m *MutationResolvers) UserSelect(ctx context.Context, input []model.UserSe
 func (m *MutationResolvers) Invite(ctx context.Context, input []model.InviteInput) ([]graph.InvitePayload, error) {
 	return []graph.InvitePayload{}, errors.New("not implemented")
 }
-
-func (m *MutationResolvers) ExperimentCreate(ctx context.Context, input model.ExperimentInput) (graph.ExperimentPayload, error) {
-	return graph.ExperimentPayload{}, errors.New("not implemented")
-}
-
-func (m *MutationResolvers) ExperimentUpdateName(ctx context.Context, input model.ExperimentUpdateNameInput) (graph.ExperimentPayload, error) {
-	return graph.ExperimentPayload{}, errors.New("not implemented")
-}
-
-func (m *MutationResolvers) ExperimentUpdateDescription(ctx context.Context, input model.ExperimentUpdateDescriptionInput) (graph.ExperimentPayload, error) {
-	return graph.ExperimentPayload{}, errors.New("not implemented")
-}
