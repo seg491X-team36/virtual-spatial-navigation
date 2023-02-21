@@ -8,6 +8,10 @@ type activeExperimentCache struct {
 	experiments map[uuid.UUID]*activeExperiment
 }
 
+func (cache *activeExperimentCache) Set(userId uuid.UUID, experiment *activeExperiment) {
+	cache.experiments[userId] = experiment
+}
+
 func (cache *activeExperimentCache) Get(userId uuid.UUID) (*activeExperiment, error) {
 	experiment, ok := cache.experiments[userId]
 	if !ok {
