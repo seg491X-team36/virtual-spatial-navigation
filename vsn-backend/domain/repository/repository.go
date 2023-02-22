@@ -1,4 +1,4 @@
-package model
+package repository
 
 import (
 	"context"
@@ -12,13 +12,15 @@ type UserRepository interface {
 	GetUser(ctx context.Context, userId uuid.UUID) (model.User, error)
 	GetUsersByState(ctx context.Context, state model.UserAccountState) []model.User
 	UpdateUserState(ctx context.Context, userIds []uuid.UUID, state model.UserAccountState) []model.User
+	// get the users who are not invited to an experiment
+	GetUsersNotInvited(ctx context.Context, experimentId uuid.UUID) []model.User
 }
 
 type InviteRepository interface {
 	CreateInvite(ctx context.Context, input model.InviteInput) (model.Invite, error)
 	GetInvite(ctx context.Context, inviteId uuid.UUID) (model.Invite, error)
-	GetInvitesByExperimentId(ctx context.Context, experimentId uuid.UUID) []model.Invite
-	GetPendingInvites(ctx context.Context, userId uuid.UUID) []model.Invite
+	GetPendingInvitesByExperimentId(ctx context.Context, experimentId uuid.UUID) []model.Invite
+	GetPendingInvitesByUserId(ctx context.Context, userId uuid.UUID) []model.Invite
 }
 
 type ExperimentRepository interface {
