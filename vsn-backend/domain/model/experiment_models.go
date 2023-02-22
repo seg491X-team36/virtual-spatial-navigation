@@ -33,17 +33,9 @@ type ExperimentResult struct {
 }
 
 type ExperimentInput struct {
-	ArenaID uuid.UUID
-}
-
-type ExperimentUpdateDescriptionInput struct {
-	ExperimentID uuid.UUID
-	Description  string
-}
-
-type ExperimentUpdateNameInput struct {
-	ExperimentID uuid.UUID
-	Name         string
+	Name        string
+	Description string
+	ExperimentConfig
 }
 
 /* experiment ExperimentStatus struct
