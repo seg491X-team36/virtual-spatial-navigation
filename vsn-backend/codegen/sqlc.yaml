@@ -5,6 +5,7 @@ sql:
       - "sql/example.sql"
       - "sql/invite.sql"
       - "sql/user.sql"
+      - "sql/experiment.sql"
     engine: "postgresql"
     gen:
       go:
