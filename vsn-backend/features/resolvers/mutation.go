@@ -15,8 +15,8 @@ func (m *MutationResolvers) UserRegister(ctx context.Context, email string) (gra
 	return graph.UserPayload{}, errors.New("not implemented")
 }
 
-func (m *MutationResolvers) UserSelect(ctx context.Context, input []model.UserSelectionInput) ([]graph.UserSelectionPayload, error) {
-	return []graph.UserSelectionPayload{}, errors.New("not implemented")
+func (m *MutationResolvers) UserSelect(ctx context.Context, input []model.UserSelectInput) ([]graph.UserSelectPayload, error) {
+	return []graph.UserSelectPayload{}, errors.New("not implemented")
 }
 
 func (m *MutationResolvers) Invite(ctx context.Context, input []model.InviteInput) ([]graph.InvitePayload, error) {
