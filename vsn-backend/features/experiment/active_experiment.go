@@ -7,16 +7,6 @@ import (
 	"github.com/seg491X-team36/vsn-backend/domain/model"
 )
 
-type recorderMetadata struct {
-	TrackingId   uuid.UUID
-	ExperimentId uuid.UUID
-	RoundNumber  int
-}
-
-type recorder interface {
-	Record(metadata recorderMetadata, data experimentData)
-}
-
 type activeExperiment struct {
 	TrackingId   uuid.UUID // id used to save the results
 	ExperimentId uuid.UUID
@@ -84,12 +74,7 @@ func (ae *activeExperiment) Record(data experimentData) {
 	if n := len(data.Frames); n > 0 {
 		ae.latestFrame = &data.Frames[n-1] // update the latest frame
 	}
-	meta := recorderMetadata{
-		TrackingId:   ae.TrackingId,
-		ExperimentId: ae.ExperimentId,
-		RoundNumber:  ae.RoundNumber,
-	}
-	ae.recorder.Record(meta, data)
+	ae.recorder.Record(ae.RoundNumber, data)
 }
 
 func (ae *activeExperiment) RecordEvent(name string) {

@@ -19,6 +19,7 @@ type Service struct {
 	invites           inviteRepository
 	experiments       experimentRepository
 	activeExperiments *activeExperimentCache
+	recorderFactory   recorderFactory
 }
 
 func (s *Service) Pending(ctx context.Context, userId uuid.UUID) pendingExperimentsResponse {
@@ -72,17 +73,24 @@ func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid
 
 	experiment, _ := s.experiments.GetExperiment(ctx, *res.ExperimentId)
 
-	// create the active experiment struct
+	// create the active experiment
 	activeExperiment := &activeExperiment{
 		TrackingId:   uuid.New(), // assign a new tracking id
 		ExperimentId: experimentId,
 		UserId:       userId,
+
 		ExperimentStatus: model.ExperimentStatus{
 			RoundInProgress: false,
 			RoundNumber:     0,
 			RoundsTotal:     experiment.Config.RoundsTotal, // RoundsTotal from ExperimentConfig
 		},
 		ExperimentConfig: experiment.Config,
+
+		// create the recorder
+		recorder: s.recorderFactory(recorderParams{
+			ExperimentId: experimentId,
+			TrackingId:   experimentId,
+		}),
 	}
 
 	s.activeExperiments.Set(userId, activeExperiment)
