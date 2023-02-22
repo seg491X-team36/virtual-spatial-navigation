@@ -20,11 +20,11 @@ VALUES
     ($1, $2, $3)
 RETURNING *;
 
--- name: UpdateUserState :exec
+-- name: UpdateUserState :many
 UPDATE 
     users
 SET
-    state=$2
+    state=$1
 WHERE
-    id=$1
+    id in (sqlc.arg(user_ids)::UUID[])
 RETURNING *;
