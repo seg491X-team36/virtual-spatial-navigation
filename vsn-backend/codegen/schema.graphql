@@ -6,47 +6,56 @@ enum UserAccountState {
     ACCEPTED
 }
 
+enum ExperimentResumeConfig {
+    RESET_ROUND
+    CONTINUE_ROUND
+}
+
 type User {
     id: ID!
     email: String!
     state: UserAccountState!
+    source: String!
     invites: [Invite!]!
     results: [ExperimentResult!]! # results from experiments completed by this user
-}
-
-type Arena {
-    id: ID!
 }
 
 type Experiment {
     id: ID!
     name: String!
     description: String!
-    arena: Arena!
+    config: ExperimentConfig!
     results: [ExperimentResult!]! # results from this experiment
+    pending: [Invite!]! # invites without results
+    usersNotInvited: [User!]! # users who can be invited
+}
+
+type ExperimentConfig {
+    Rounds: Int!
+    Resume: ExperimentResumeConfig!
 }
 
 type ExperimentResult {
     id: ID!
+    createdAt: Time!
     user: User!
     experiment: Experiment!
-    completed: Time!
-    download: String! # tbd
 }
 
 type Invite {
     id: ID!
+    createdAt: Time!
     user: User!
     experiment: Experiment!
-    supervised: Boolean!
 }
 
 type Query {
+    login(email: String!, password: String!): String
+
     user(id: ID!): User
     users(state: UserAccountState): [User!]!
 
     invite(id: ID!): Invite
-    invites(supervised: Boolean!, experiments: ID!): [Invite!]!
 
     experiment(id: ID!): Experiment
     experiments: [Experiment!]!
@@ -56,29 +65,10 @@ type Query {
 type Mutation {
     # users
     userRegister(email: String!): UserPayload! 
-    userSelect(input: [UserSelectionInput!]!): [UserSelectionPayload!]!
+    userSelect(input: [UserSelectInput!]!): [UserSelectPayload!]!
 
     # invites
     invite(input: [InviteInput!]!): [InvitePayload!]!
-    
-    # experiments
-    experimentCreate(input: ExperimentInput!): ExperimentPayload!
-    experimentUpdateName(input: ExperimentUpdateNameInput!): ExperimentPayload!
-    experimentUpdateDescription(input: ExperimentUpdateDescriptionInput!): ExperimentPayload!
-}
-
-input ExperimentInput {
-    arenaId: ID!
-}
-
-input ExperimentUpdateNameInput {
-    experimentId: ID!
-    name: String!
-}
-
-input ExperimentUpdateDescriptionInput {
-    experimentId: ID!
-    description: String!
 }
 
 type ExperimentPayload {
@@ -89,7 +79,6 @@ type ExperimentPayload {
 input InviteInput {
     userId: ID!
     experimentId: ID!
-    supervised: Boolean!
 }
 
 type InvitePayload {
@@ -102,12 +91,12 @@ type UserPayload {
     error: String
 }
 
-input UserSelectionInput {
+input UserSelectInput {
     userId: ID!
     accept: Boolean!
 }
 
-type UserSelectionPayload {
+type UserSelectPayload {
     user: User!
     error: String!
 }

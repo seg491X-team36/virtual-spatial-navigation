@@ -10,10 +10,14 @@ import (
 type ExperimentResolvers struct {
 }
 
-func (r *ExperimentResolvers) Arena(ctx context.Context, obj *model.Experiment) (model.Arena, error) {
-	return model.Arena{}, errors.New("not implemented")
+func (r *ExperimentResolvers) Results(ctx context.Context, obj *model.Experiment) ([]model.ExperimentResult, error) {
+	return nil, errors.New("not implemented")
 }
 
-func (r *ExperimentResolvers) Results(ctx context.Context, obj *model.Experiment) ([]model.ExperimentResult, error) {
-	return []model.ExperimentResult{}, errors.New("not implemented")
+func (r *ExperimentResolvers) Pending(ctx context.Context, obj *model.Experiment) ([]model.Invite, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (r *ExperimentResolvers) UsersNotInvited(ctx context.Context, obj *model.Experiment) ([]model.User, error) {
+	return nil, errors.New("not implemented")
 }

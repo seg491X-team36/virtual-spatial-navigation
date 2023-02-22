@@ -5,6 +5,7 @@ import "github.com/seg491X-team36/vsn-backend/codegen/graph"
 type Root struct {
 	graph.ExperimentResolver
 	graph.ExperimentResultResolver
+	graph.ExperimentConfigResolver
 	graph.InviteResolver
 	graph.MutationResolver
 	graph.QueryResolver
@@ -17,6 +18,10 @@ func (r *Root) Experiment() graph.ExperimentResolver {
 
 func (r *Root) ExperimentResult() graph.ExperimentResultResolver {
 	return r.ExperimentResultResolver
+}
+
+func (r *Root) ExperimentConfig() graph.ExperimentConfigResolver {
+	return r.ExperimentConfigResolver
 }
 
 func (r *Root) Invite() graph.InviteResolver {
