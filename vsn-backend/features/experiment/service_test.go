@@ -14,7 +14,13 @@ type recorderStub struct {
 	frames []frame
 }
 
-func (r *recorderStub) Record(metadata recorderMetadata, data experimentData) {
+func recorderStubFactory(stub *recorderStub) recorderFactory {
+	return func(params recorderParams) recorder {
+		return stub
+	}
+}
+
+func (r *recorderStub) Record(round int, data experimentData) {
 	r.events = append(r.events, data.Events...)
 	r.frames = append(r.frames, data.Frames...)
 }
@@ -213,6 +219,7 @@ func TestServiceStartExperiment(t *testing.T) {
 			activeExperiments: &activeExperimentCache{
 				experiments: map[uuid.UUID]*activeExperiment{},
 			},
+			recorderFactory: recorderStubFactory(&recorderStub{}),
 		}
 
 		res, err := service.StartExperiment(ctx, userId, experimentId)
