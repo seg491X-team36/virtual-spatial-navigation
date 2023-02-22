@@ -10,7 +10,8 @@ CREATE TABLE users (
 CREATE TABLE experiments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    config JSON NOT NULL
 );
 
 CREATE TABLE experiment_results (
