@@ -28,7 +28,7 @@ type ExperimentConfig struct {
 type ExperimentResult struct {
 	Id           uuid.UUID
 	CreatedAt    time.Time
-	UserId       uuid.UUID // id used to store the experiment data
+	UserId       uuid.UUID
 	ExperimentId uuid.UUID
 }
 
@@ -36,6 +36,12 @@ type ExperimentInput struct {
 	Name        string
 	Description string
 	ExperimentConfig
+}
+
+type ExperimentResultInput struct {
+	Id           uuid.UUID // "TrackingId" in experiments package
+	UserId       uuid.UUID
+	ExperimentId uuid.UUID
 }
 
 /* experiment ExperimentStatus struct
