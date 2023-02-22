@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/codegen/db"
@@ -60,17 +61,7 @@ func (repository UserRepository) CreateUser(
 
 func (repository UserRepository) UpdateUserState(
 	ctx context.Context,
-	input model.UserSelectionInput,
+	input model.UserSelectInput,
 ) error {
-	if input.Accept {
-		return repository.Query.UpdateUserState(ctx, db.UpdateUserStateParams{
-			ID:    input.UserID,
-			State: db.UserAccountStateACCEPTED,
-		})
-	} else {
-		return repository.Query.UpdateUserState(ctx, db.UpdateUserStateParams{
-			ID:    input.UserID,
-			State: db.UserAccountStateACCEPTED,
-		})
-	}
+	return errors.New("not implemented")
 }

@@ -26,20 +26,14 @@ type Invite struct {
 	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
-}
-
-type Arena struct {
-	Id uuid.UUID
 }
 
 type InviteInput struct {
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
 }
 
-type UserSelectionInput struct {
+type UserSelectInput struct {
 	UserID uuid.UUID
 	Accept bool
 }

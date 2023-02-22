@@ -7,18 +7,16 @@ LIMIT 1;
 -- name: GetInvitesByExperimentId :many
 SELECT *
 FROM invites
-WHERE supervised = $1
-AND experiment_id = $2;
+WHERE experiment_id = $1;
 
 -- name: CreateInvite :one
 INSERT INTO
     invites (
         user_id,
-        experiment_id,
-        supervised
+        experiment_id
     )
 VALUES
-    ($1, $2, $3)
+    ($1, $2)
 RETURNING *;
 
 -- name: GetPendingInvites :many

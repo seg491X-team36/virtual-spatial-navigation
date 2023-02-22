@@ -21,7 +21,7 @@ type UserPayload struct {
 	Error *string     `json:"error"`
 }
 
-type UserSelectionPayload struct {
+type UserSelectPayload struct {
 	User  *model.User `json:"user"`
 	Error string      `json:"error"`
 }

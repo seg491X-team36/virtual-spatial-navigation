@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -94,22 +95,45 @@ func (q *Queries) GetUsersByState(ctx context.Context, state UserAccountState) (
 	return items, nil
 }
 
-const updateUserState = `-- name: UpdateUserState :exec
+const updateUserState = `-- name: UpdateUserState :many
 UPDATE 
     users
 SET
-    state=$2
+    state=$1
 WHERE
-    id=$1
+    id in ($2::UUID[])
 RETURNING id, email, state, source
 `
 
 type UpdateUserStateParams struct {
-	ID    uuid.UUID
-	State UserAccountState
+	State   UserAccountState
+	UserIds []uuid.UUID
 }
 
-func (q *Queries) UpdateUserState(ctx context.Context, arg UpdateUserStateParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserState, arg.ID, arg.State)
-	return err
+func (q *Queries) UpdateUserState(ctx context.Context, arg UpdateUserStateParams) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, updateUserState, arg.State, pq.Array(arg.UserIds))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.State,
+			&i.Source,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

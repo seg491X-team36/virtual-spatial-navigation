@@ -3,7 +3,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/seg491X-team36/vsn-backend/domain/model"
 )
@@ -17,12 +16,4 @@ func (r *ExperimentResultResolvers) User(ctx context.Context, obj *model.Experim
 
 func (r *ExperimentResultResolvers) Experiment(ctx context.Context, obj *model.ExperimentResult) (model.Experiment, error) {
 	return model.Experiment{}, errors.New("not implemented")
-}
-
-func (r *ExperimentResultResolvers) Download(ctx context.Context, obj *model.ExperimentResult) (string, error) {
-	return "", errors.New("not implemented")
-}
-
-func (r *ExperimentResultResolvers) Completed(ctx context.Context, obj *model.ExperimentResult) (time.Time, error) {
-	return obj.CreatedAt, nil
 }
