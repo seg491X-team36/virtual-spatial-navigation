@@ -15,35 +15,32 @@ const createInvite = `-- name: CreateInvite :one
 INSERT INTO
     invites (
         user_id,
-        experiment_id,
-        supervised
+        experiment_id
     )
 VALUES
-    ($1, $2, $3)
-RETURNING id, created_at, user_id, experiment_id, supervised
+    ($1, $2)
+RETURNING id, created_at, user_id, experiment_id
 `
 
 type CreateInviteParams struct {
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
 }
 
 func (q *Queries) CreateInvite(ctx context.Context, arg CreateInviteParams) (Invite, error) {
-	row := q.db.QueryRowContext(ctx, createInvite, arg.UserID, arg.ExperimentID, arg.Supervised)
+	row := q.db.QueryRowContext(ctx, createInvite, arg.UserID, arg.ExperimentID)
 	var i Invite
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
 		&i.UserID,
 		&i.ExperimentID,
-		&i.Supervised,
 	)
 	return i, err
 }
 
 const getInvite = `-- name: GetInvite :one
-SELECT id, created_at, user_id, experiment_id, supervised
+SELECT id, created_at, user_id, experiment_id
 FROM invites
 WHERE id = $1
 LIMIT 1
@@ -57,25 +54,18 @@ func (q *Queries) GetInvite(ctx context.Context, id uuid.UUID) (Invite, error) {
 		&i.CreatedAt,
 		&i.UserID,
 		&i.ExperimentID,
-		&i.Supervised,
 	)
 	return i, err
 }
 
 const getInvitesByExperimentId = `-- name: GetInvitesByExperimentId :many
-SELECT id, created_at, user_id, experiment_id, supervised
+SELECT id, created_at, user_id, experiment_id
 FROM invites
-WHERE supervised = $1
-AND experiment_id = $2
+WHERE experiment_id = $1
 `
 
-type GetInvitesByExperimentIdParams struct {
-	Supervised   bool
-	ExperimentID uuid.UUID
-}
-
-func (q *Queries) GetInvitesByExperimentId(ctx context.Context, arg GetInvitesByExperimentIdParams) ([]Invite, error) {
-	rows, err := q.db.QueryContext(ctx, getInvitesByExperimentId, arg.Supervised, arg.ExperimentID)
+func (q *Queries) GetInvitesByExperimentId(ctx context.Context, experimentID uuid.UUID) ([]Invite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvitesByExperimentId, experimentID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +78,6 @@ func (q *Queries) GetInvitesByExperimentId(ctx context.Context, arg GetInvitesBy
 			&i.CreatedAt,
 			&i.UserID,
 			&i.ExperimentID,
-			&i.Supervised,
 		); err != nil {
 			return nil, err
 		}
@@ -104,7 +93,7 @@ func (q *Queries) GetInvitesByExperimentId(ctx context.Context, arg GetInvitesBy
 }
 
 const getPendingInvites = `-- name: GetPendingInvites :many
-SELECT id, created_at, user_id, experiment_id, supervised FROM invites WHERE invites.user_id = $1 AND invites.experiment_id NOT IN 
+SELECT id, created_at, user_id, experiment_id FROM invites WHERE invites.user_id = $1 AND invites.experiment_id NOT IN 
 (SELECT experiment_id FROM experiment_results WHERE experiment_results.user_id = $1)
 ORDER BY invites.created_at ASC
 `
@@ -123,7 +112,6 @@ func (q *Queries) GetPendingInvites(ctx context.Context, userID uuid.UUID) ([]In
 			&i.CreatedAt,
 			&i.UserID,
 			&i.ExperimentID,
-			&i.Supervised,
 		); err != nil {
 			return nil, err
 		}

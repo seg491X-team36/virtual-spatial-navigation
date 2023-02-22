@@ -94,7 +94,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		Invite       func(childComplexity int, input []model.InviteInput) int
 		UserRegister func(childComplexity int, email string) int
-		UserSelect   func(childComplexity int, input []model.UserSelectionInput) int
+		UserSelect   func(childComplexity int, input []model.UserSelectInput) int
 	}
 
 	Query struct {
@@ -120,7 +120,7 @@ type ComplexityRoot struct {
 		User  func(childComplexity int) int
 	}
 
-	UserSelectionPayload struct {
+	UserSelectPayload struct {
 		Error func(childComplexity int) int
 		User  func(childComplexity int) int
 	}
@@ -145,7 +145,7 @@ type InviteResolver interface {
 }
 type MutationResolver interface {
 	UserRegister(ctx context.Context, email string) (UserPayload, error)
-	UserSelect(ctx context.Context, input []model.UserSelectionInput) ([]UserSelectionPayload, error)
+	UserSelect(ctx context.Context, input []model.UserSelectInput) ([]UserSelectPayload, error)
 	Invite(ctx context.Context, input []model.InviteInput) ([]InvitePayload, error)
 }
 type QueryResolver interface {
@@ -357,7 +357,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UserSelect(childComplexity, args["input"].([]model.UserSelectionInput)), true
+		return e.complexity.Mutation.UserSelect(childComplexity, args["input"].([]model.UserSelectInput)), true
 
 	case "Query.experiment":
 		if e.complexity.Query.Experiment == nil {
@@ -482,19 +482,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserPayload.User(childComplexity), true
 
-	case "UserSelectionPayload.error":
-		if e.complexity.UserSelectionPayload.Error == nil {
+	case "UserSelectPayload.error":
+		if e.complexity.UserSelectPayload.Error == nil {
 			break
 		}
 
-		return e.complexity.UserSelectionPayload.Error(childComplexity), true
+		return e.complexity.UserSelectPayload.Error(childComplexity), true
 
-	case "UserSelectionPayload.user":
-		if e.complexity.UserSelectionPayload.User == nil {
+	case "UserSelectPayload.user":
+		if e.complexity.UserSelectPayload.User == nil {
 			break
 		}
 
-		return e.complexity.UserSelectionPayload.User(childComplexity), true
+		return e.complexity.UserSelectPayload.User(childComplexity), true
 
 	}
 	return 0, false
@@ -505,7 +505,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputInviteInput,
-		ec.unmarshalInputUserSelectionInput,
+		ec.unmarshalInputUserSelectInput,
 	)
 	first := true
 
@@ -633,7 +633,7 @@ type Query {
 type Mutation {
     # users
     userRegister(email: String!): UserPayload! 
-    userSelect(input: [UserSelectionInput!]!): [UserSelectionPayload!]!
+    userSelect(input: [UserSelectInput!]!): [UserSelectPayload!]!
 
     # invites
     invite(input: [InviteInput!]!): [InvitePayload!]!
@@ -647,7 +647,6 @@ type ExperimentPayload {
 input InviteInput {
     userId: ID!
     experimentId: ID!
-    supervised: Boolean!
 }
 
 type InvitePayload {
@@ -660,12 +659,12 @@ type UserPayload {
     error: String
 }
 
-input UserSelectionInput {
+input UserSelectInput {
     userId: ID!
     accept: Boolean!
 }
 
-type UserSelectionPayload {
+type UserSelectPayload {
     user: User!
     error: String!
 }
@@ -710,10 +709,10 @@ func (ec *executionContext) field_Mutation_userRegister_args(ctx context.Context
 func (ec *executionContext) field_Mutation_userSelect_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 []model.UserSelectionInput
+	var arg0 []model.UserSelectInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUserSelectionInput2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectionInputᚄ(ctx, tmp)
+		arg0, err = ec.unmarshalNUserSelectInput2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectInputᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1974,7 +1973,7 @@ func (ec *executionContext) _Mutation_userSelect(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UserSelect(rctx, fc.Args["input"].([]model.UserSelectionInput))
+		return ec.resolvers.Mutation().UserSelect(rctx, fc.Args["input"].([]model.UserSelectInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1985,9 +1984,9 @@ func (ec *executionContext) _Mutation_userSelect(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]UserSelectionPayload)
+	res := resTmp.([]UserSelectPayload)
 	fc.Result = res
-	return ec.marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayloadᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserSelectPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectPayloadᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_userSelect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1999,11 +1998,11 @@ func (ec *executionContext) fieldContext_Mutation_userSelect(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "user":
-				return ec.fieldContext_UserSelectionPayload_user(ctx, field)
+				return ec.fieldContext_UserSelectPayload_user(ctx, field)
 			case "error":
-				return ec.fieldContext_UserSelectionPayload_error(ctx, field)
+				return ec.fieldContext_UserSelectPayload_error(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UserSelectionPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserSelectPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -2958,8 +2957,8 @@ func (ec *executionContext) fieldContext_UserPayload_error(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSelectionPayload_user(ctx context.Context, field graphql.CollectedField, obj *UserSelectionPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSelectionPayload_user(ctx, field)
+func (ec *executionContext) _UserSelectPayload_user(ctx context.Context, field graphql.CollectedField, obj *UserSelectPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSelectPayload_user(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2989,9 +2988,9 @@ func (ec *executionContext) _UserSelectionPayload_user(ctx context.Context, fiel
 	return ec.marshalNUser2ᚖgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSelectionPayload_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserSelectPayload_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSelectionPayload",
+		Object:     "UserSelectPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3016,8 +3015,8 @@ func (ec *executionContext) fieldContext_UserSelectionPayload_user(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSelectionPayload_error(ctx context.Context, field graphql.CollectedField, obj *UserSelectionPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSelectionPayload_error(ctx, field)
+func (ec *executionContext) _UserSelectPayload_error(ctx context.Context, field graphql.CollectedField, obj *UserSelectPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserSelectPayload_error(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3047,9 +3046,9 @@ func (ec *executionContext) _UserSelectionPayload_error(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSelectionPayload_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserSelectPayload_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSelectionPayload",
+		Object:     "UserSelectPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4840,7 +4839,7 @@ func (ec *executionContext) unmarshalInputInviteInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userId", "experimentId", "supervised"}
+	fieldsInOrder := [...]string{"userId", "experimentId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4863,22 +4862,14 @@ func (ec *executionContext) unmarshalInputInviteInput(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
-		case "supervised":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("supervised"))
-			it.Supervised, err = ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUserSelectionInput(ctx context.Context, obj interface{}) (model.UserSelectionInput, error) {
-	var it model.UserSelectionInput
+func (ec *executionContext) unmarshalInputUserSelectInput(ctx context.Context, obj interface{}) (model.UserSelectInput, error) {
+	var it model.UserSelectInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -5622,26 +5613,26 @@ func (ec *executionContext) _UserPayload(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var userSelectionPayloadImplementors = []string{"UserSelectionPayload"}
+var userSelectPayloadImplementors = []string{"UserSelectPayload"}
 
-func (ec *executionContext) _UserSelectionPayload(ctx context.Context, sel ast.SelectionSet, obj *UserSelectionPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userSelectionPayloadImplementors)
+func (ec *executionContext) _UserSelectPayload(ctx context.Context, sel ast.SelectionSet, obj *UserSelectPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userSelectPayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserSelectionPayload")
+			out.Values[i] = graphql.MarshalString("UserSelectPayload")
 		case "user":
 
-			out.Values[i] = ec._UserSelectionPayload_user(ctx, field, obj)
+			out.Values[i] = ec._UserSelectPayload_user(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "error":
 
-			out.Values[i] = ec._UserSelectionPayload_error(ctx, field, obj)
+			out.Values[i] = ec._UserSelectPayload_error(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -6362,21 +6353,21 @@ func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋseg491Xᚑteam36�
 	return ec._UserPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNUserSelectionInput2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectionInput(ctx context.Context, v interface{}) (model.UserSelectionInput, error) {
-	res, err := ec.unmarshalInputUserSelectionInput(ctx, v)
+func (ec *executionContext) unmarshalNUserSelectInput2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectInput(ctx context.Context, v interface{}) (model.UserSelectInput, error) {
+	res, err := ec.unmarshalInputUserSelectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUserSelectionInput2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectionInputᚄ(ctx context.Context, v interface{}) ([]model.UserSelectionInput, error) {
+func (ec *executionContext) unmarshalNUserSelectInput2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectInputᚄ(ctx context.Context, v interface{}) ([]model.UserSelectInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]model.UserSelectionInput, len(vSlice))
+	res := make([]model.UserSelectInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUserSelectionInput2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectionInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNUserSelectInput2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋdomainᚋmodelᚐUserSelectInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -6384,11 +6375,11 @@ func (ec *executionContext) unmarshalNUserSelectionInput2ᚕgithubᚗcomᚋseg49
 	return res, nil
 }
 
-func (ec *executionContext) marshalNUserSelectionPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayload(ctx context.Context, sel ast.SelectionSet, v UserSelectionPayload) graphql.Marshaler {
-	return ec._UserSelectionPayload(ctx, sel, &v)
+func (ec *executionContext) marshalNUserSelectPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectPayload(ctx context.Context, sel ast.SelectionSet, v UserSelectPayload) graphql.Marshaler {
+	return ec._UserSelectPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []UserSelectionPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSelectPayload2ᚕgithubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectPayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []UserSelectPayload) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6412,7 +6403,7 @@ func (ec *executionContext) marshalNUserSelectionPayload2ᚕgithubᚗcomᚋseg49
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserSelectionPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectionPayload(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserSelectPayload2githubᚗcomᚋseg491Xᚑteam36ᚋvsnᚑbackendᚋcodegenᚋgraphᚐUserSelectPayload(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

@@ -73,7 +73,6 @@ type Invite struct {
 	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
 }
 
 type User struct {
