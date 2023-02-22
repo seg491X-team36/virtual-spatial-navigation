@@ -16,6 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     name: Analyze the repo with CodeSee
+    defaults:
+      run:
+        working-directory: "vsn-backend"
     steps:
       - uses: Codesee-io/codesee-action@v2
         with:
