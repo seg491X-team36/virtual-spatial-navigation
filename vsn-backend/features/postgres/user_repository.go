@@ -60,7 +60,7 @@ func (repository UserRepository) CreateUser(
 
 func (repository UserRepository) UpdateUserState(
 	ctx context.Context,
-	input model.UserSelectionInput,
+	input model.UserSelectInput,
 ) error {
 	if input.Accept {
 		return repository.Query.UpdateUserState(ctx, db.UpdateUserStateParams{
