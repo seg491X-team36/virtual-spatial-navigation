@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/codegen/db"
@@ -11,7 +12,11 @@ import (
 
 func convertExperiment(record db.Experiment) model.Experiment {
 	var expConfig model.ExperimentConfig = model.ExperimentConfig{}
-	json.Unmarshal(record.Config, &expConfig)
+
+	if err := json.Unmarshal(record.Config, &expConfig); err != nil {
+		log.Printf("Failed to decode experiment config: %v", err)
+	}
+
 	return model.Experiment{
 		Id:          record.ID,
 		Name:        record.Name,
