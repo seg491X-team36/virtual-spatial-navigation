@@ -13,13 +13,13 @@ type csvWriter[V any] struct {
 
 func (r *csvWriter[V]) Write(records []V, w *csv.Writer) {
 	for _, record := range records {
-		w.Write(r.Serialize(record))
+		_ = w.Write(r.Serialize(record))
 	}
 	w.Flush()
 }
 
 func (r *csvWriter[V]) WriteHeaders(w *csv.Writer) {
-	w.Write(r.Headers)
+	_ = w.Write(r.Headers)
 }
 
 var (
