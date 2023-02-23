@@ -22,6 +22,17 @@ type Service struct {
 	recorderFactory   recorderFactory
 }
 
+func NewService(invites inviteRepository, experiments experimentRepository, factory recorderFactory) *Service {
+	return &Service{
+		invites:     invites,
+		experiments: experiments,
+		activeExperiments: &activeExperimentCache{
+			experiments: map[uuid.UUID]*activeExperiment{},
+		},
+		recorderFactory: factory,
+	}
+}
+
 func (s *Service) Pending(ctx context.Context, userId uuid.UUID) pendingExperimentsResponse {
 	experiment, _ := s.activeExperiments.Get(userId)
 	invites := s.invites.GetPendingInvites(ctx, userId)
