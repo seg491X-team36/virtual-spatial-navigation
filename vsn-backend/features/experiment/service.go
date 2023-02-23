@@ -15,9 +15,14 @@ type experimentRepository interface {
 	GetExperiment(ctx context.Context, experimentId uuid.UUID) (model.Experiment, error)
 }
 
+type experimentResultRepository interface {
+	CreateExperimentResult(ctx context.Context, input model.ExperimentResultInput) (model.ExperimentResult, error)
+}
+
 type Service struct {
 	invites           inviteRepository
 	experiments       experimentRepository
+	experimentResults experimentResultRepository
 	activeExperiments *activeExperimentCache
 	recorderFactory   recorderFactory
 }
@@ -145,6 +150,11 @@ func (s *Service) StopRound(ctx context.Context, userId uuid.UUID, data experime
 	// the experiment is done
 	if status.Done() {
 		s.activeExperiments.Delete(userId)
+		s.experimentResults.CreateExperimentResult(ctx, model.ExperimentResultInput{
+			Id:           experiment.TrackingId,
+			UserId:       experiment.UserId,
+			ExperimentId: experiment.ExperimentId,
+		})
 	}
 
 	return &status, err
