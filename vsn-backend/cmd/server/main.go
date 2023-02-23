@@ -16,7 +16,7 @@ func main() {
 
 	srv := &server.Server{
 		ExperimentHandlers: &experiment.ExperimentHandlers{
-			ExperimentService: experiment.NewService(nil, nil, recorder), // TODO
+			ExperimentService: experiment.NewService(nil, nil, nil, recorder), // TODO
 		},
 		VerificationHandlers: &experiment.VerificationHandlers{
 			// TODO

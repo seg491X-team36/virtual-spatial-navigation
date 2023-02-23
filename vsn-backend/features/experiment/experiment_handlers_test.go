@@ -61,6 +61,7 @@ func TestExperimentHandlers(t *testing.T) {
 		&experimentRepositoryStub{
 			Experiment: experiment,
 		},
+		&experimentResultRepositoryStub{},
 		recorderStubFactory(recorder),
 	)
 

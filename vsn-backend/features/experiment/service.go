@@ -27,10 +27,16 @@ type Service struct {
 	recorderFactory   recorderFactory
 }
 
-func NewService(invites inviteRepository, experiments experimentRepository, factory recorderFactory) *Service {
+func NewService(
+	invites inviteRepository,
+	experiments experimentRepository,
+	experimentResults experimentResultRepository,
+	factory recorderFactory,
+) ExperimentService {
 	return &Service{
-		invites:     invites,
-		experiments: experiments,
+		invites:           invites,
+		experiments:       experiments,
+		experimentResults: experimentResults,
 		activeExperiments: &activeExperimentCache{
 			experiments: map[uuid.UUID]*activeExperiment{},
 		},
