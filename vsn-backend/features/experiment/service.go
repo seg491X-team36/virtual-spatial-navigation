@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/domain/model"
+	"github.com/seg491X-team36/vsn-backend/features/experiment/experimentsync"
 )
 
 type inviteRepository interface {
@@ -27,14 +28,23 @@ type Service struct {
 	recorderFactory   recorderFactory
 }
 
-func NewService(invites inviteRepository, experiments experimentRepository, factory recorderFactory) *Service {
-	return &Service{
-		invites:     invites,
-		experiments: experiments,
-		activeExperiments: &activeExperimentCache{
-			experiments: map[uuid.UUID]*activeExperiment{},
+func NewService(
+	invites inviteRepository,
+	experiments experimentRepository,
+	experimentResults experimentResultRepository,
+	factory recorderFactory,
+) ExperimentService {
+	return &syncExperimentService{
+		Map: experimentsync.NewMap(),
+		service: &Service{
+			invites:           invites,
+			experiments:       experiments,
+			experimentResults: experimentResults,
+			activeExperiments: &activeExperimentCache{
+				experiments: map[uuid.UUID]*activeExperiment{},
+			},
+			recorderFactory: factory,
 		},
-		recorderFactory: factory,
 	}
 }
 
