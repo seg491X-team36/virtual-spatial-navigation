@@ -57,10 +57,18 @@ stop round -> {"roundInProgress": false, "roundNumber": 3} DONE
 */
 type ExperimentStatus struct {
 	RoundInProgress bool `json:"roundInProgress"`
-	RoundNumber     int  `json:"roundNumber"`
+	RoundsCompleted int  `json:"roundsCompleted"`
 	RoundsTotal     int  `json:"roundsTotal"`
 }
 
+func NewExperimentStatus(roundsTotal int) ExperimentStatus {
+	return ExperimentStatus{
+		RoundInProgress: false,
+		RoundsCompleted: 0,
+		RoundsTotal:     roundsTotal,
+	}
+}
+
 func (s ExperimentStatus) Done() bool {
-	return s.RoundNumber == s.RoundsTotal && !s.RoundInProgress
+	return s.RoundsCompleted == s.RoundsTotal && !s.RoundInProgress
 }

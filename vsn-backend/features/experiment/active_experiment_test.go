@@ -17,7 +17,7 @@ func TestResume(t *testing.T) {
 			latestFrame: &frame{},
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: false, // NOT IN PROGRESS
-				RoundNumber:     1,
+				RoundsCompleted: 1,
 				RoundsTotal:     2,
 			},
 			ExperimentConfig: model.ExperimentConfig{
@@ -32,7 +32,7 @@ func TestResume(t *testing.T) {
 		assert.Equal(t, "RESUME:NO_EFFECT", recorder.events[0].Name)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     1,
+			RoundsCompleted: 1,
 			RoundsTotal:     2,
 		}, experiment.ExperimentStatus)
 	})
@@ -45,7 +45,7 @@ func TestResume(t *testing.T) {
 			latestFrame: &frame{},
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: true,
-				RoundNumber:     1,
+				RoundsCompleted: 1,
 				RoundsTotal:     2,
 			},
 			ExperimentConfig: model.ExperimentConfig{
@@ -60,7 +60,7 @@ func TestResume(t *testing.T) {
 		assert.Equal(t, "RESUME:RESET_ROUND", recorder.events[0].Name)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     1,
+			RoundsCompleted: 1,
 			RoundsTotal:     2,
 		}, experiment.ExperimentStatus)
 	})
@@ -78,7 +78,7 @@ func TestResume(t *testing.T) {
 			latestFrame: latestFrame,
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: true,
-				RoundNumber:     1,
+				RoundsCompleted: 1,
 				RoundsTotal:     2,
 			},
 			ExperimentConfig: model.ExperimentConfig{
@@ -93,7 +93,7 @@ func TestResume(t *testing.T) {
 		assert.Equal(t, "RESUME:CONTINUE_ROUND", recorder.events[0].Name)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: true,
-			RoundNumber:     1,
+			RoundsCompleted: 1,
 			RoundsTotal:     2,
 		}, experiment.ExperimentStatus)
 	})
@@ -106,7 +106,7 @@ func TestResume(t *testing.T) {
 			latestFrame: &frame{},
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: false,
-				RoundNumber:     1,
+				RoundsCompleted: 1,
 				RoundsTotal:     2,
 			},
 			ExperimentConfig: model.ExperimentConfig{
@@ -121,7 +121,7 @@ func TestResume(t *testing.T) {
 		assert.Equal(t, "RESUME:NO_EFFECT", recorder.events[0].Name)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     1,
+			RoundsCompleted: 1,
 			RoundsTotal:     2,
 		}, experiment.ExperimentStatus)
 	})

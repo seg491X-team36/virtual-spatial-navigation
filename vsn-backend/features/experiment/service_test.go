@@ -116,7 +116,7 @@ func TestServiceStartAndStopRound(t *testing.T) {
 		UserId: userId1,
 		ExperimentStatus: model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     0,
+			RoundsCompleted: 0,
 			RoundsTotal:     2,
 		},
 		recorder:    &recorderStub{},
@@ -151,7 +151,7 @@ func TestServiceStartAndStopRound(t *testing.T) {
 	assert.ErrorIs(t, err, errExperimentRoundNotInProgress)
 	assert.Equal(t, &model.ExperimentStatus{
 		RoundInProgress: false,
-		RoundNumber:     0,
+		RoundsCompleted: 0,
 		RoundsTotal:     2,
 	}, status) // still returns the status even if the round is not stopped
 
@@ -160,7 +160,7 @@ func TestServiceStartAndStopRound(t *testing.T) {
 		status, err = service.StartRound(ctx, userId1)
 		expected := &model.ExperimentStatus{
 			RoundInProgress: true,
-			RoundNumber:     i,
+			RoundsCompleted: i,
 			RoundsTotal:     2,
 		}
 		assert.NoError(t, err)
@@ -176,7 +176,7 @@ func TestServiceStartAndStopRound(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, &model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     i + 1,
+			RoundsCompleted: i + 1,
 			RoundsTotal:     2,
 		}, status)
 
@@ -230,7 +230,7 @@ func TestServiceStartExperiment(t *testing.T) {
 		assert.Equal(t, experiment.Config, res.Experiment)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     0,
+			RoundsCompleted: 0,
 			RoundsTotal:     2,
 		}, res.Status)
 	})
@@ -254,7 +254,7 @@ func TestServiceStartExperiment(t *testing.T) {
 						UserId:       userId,
 						ExperimentStatus: model.ExperimentStatus{
 							RoundInProgress: false,
-							RoundNumber:     1,
+							RoundsCompleted: 1,
 							RoundsTotal:     2,
 						},
 						ExperimentConfig: experiment.Config,
@@ -268,7 +268,7 @@ func TestServiceStartExperiment(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     1,
+			RoundsCompleted: 1,
 			RoundsTotal:     2,
 		}, res.Status)
 	})

@@ -90,11 +90,7 @@ func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid
 		ExperimentId: experimentId,
 		UserId:       userId,
 
-		ExperimentStatus: model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundNumber:     0,
-			RoundsTotal:     experiment.Config.RoundsTotal, // RoundsTotal from ExperimentConfig
-		},
+		ExperimentStatus: model.NewExperimentStatus(experiment.Config.RoundsTotal),
 		ExperimentConfig: experiment.Config,
 
 		// create the recorder
