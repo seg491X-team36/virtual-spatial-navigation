@@ -37,7 +37,7 @@ func HandlerTC[Request, Response any](
 	// read the response
 	resData, _ := io.ReadAll(res.Body)
 	var resActual Response
-	json.Unmarshal(resData, &resActual)
+	_ = json.Unmarshal(resData, &resActual)
 
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 	assert.Equal(t, resExpected, resActual)
