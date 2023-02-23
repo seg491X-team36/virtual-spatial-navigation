@@ -102,7 +102,7 @@ func TestExperimentHandlers(t *testing.T) {
 				Experiment: experiment.Config,
 				Status: model.ExperimentStatus{
 					RoundInProgress: false,
-					RoundNumber:     0,
+					RoundsCompleted: 0,
 					RoundsTotal:     experiment.Config.RoundsTotal,
 				},
 				Frame: nil,
@@ -121,7 +121,7 @@ func TestExperimentHandlers(t *testing.T) {
 		res := startRoundResponse{
 			Status: &model.ExperimentStatus{
 				RoundInProgress: true,
-				RoundNumber:     0,
+				RoundsCompleted: 0,
 				RoundsTotal:     experiment.Config.RoundsTotal,
 			},
 			Error: nil,
@@ -142,7 +142,7 @@ func TestExperimentHandlers(t *testing.T) {
 		res := stopRoundResponse{
 			Status: &model.ExperimentStatus{
 				RoundInProgress: false,
-				RoundNumber:     1,
+				RoundsCompleted: 1,
 				RoundsTotal:     experiment.Config.RoundsTotal,
 			},
 			Error: nil,

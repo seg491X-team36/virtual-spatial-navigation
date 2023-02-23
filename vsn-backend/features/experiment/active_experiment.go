@@ -65,7 +65,7 @@ func (ae *activeExperiment) StopRound(data experimentData) (model.ExperimentStat
 	// update round in progress and go to the next round
 	ae.RecordEvent("ROUND:STOP")
 	ae.RoundInProgress = false
-	ae.RoundNumber += 1
+	ae.RoundsCompleted += 1
 	ae.latestFrame = nil // reset the latest frame
 	return ae.ExperimentStatus, nil
 }
@@ -74,7 +74,7 @@ func (ae *activeExperiment) Record(data experimentData) {
 	if n := len(data.Frames); n > 0 {
 		ae.latestFrame = &data.Frames[n-1] // update the latest frame
 	}
-	ae.recorder.Record(ae.RoundNumber, data)
+	ae.recorder.Record(ae.RoundsCompleted, data)
 }
 
 func (ae *activeExperiment) RecordEvent(name string) {
