@@ -21,8 +21,8 @@ type Experiment struct {
 }
 
 type ExperimentConfig struct {
-	RoundsTotal  int
-	ResumeConfig ExperimentResumeConfig
+	RoundsTotal  int                    `json:"roundsTotalConfig"`
+	ResumeConfig ExperimentResumeConfig `json:"resumeConfig"`
 }
 
 type ExperimentResult struct {

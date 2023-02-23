@@ -53,8 +53,8 @@ type startExperimentData struct {
 }
 
 type startExperimentResponse struct {
-	Data  *startExperimentData
-	Error *string `json:"error"`
+	Data  *startExperimentData `json:"data"`
+	Error *string              `json:"error"`
 }
 
 type startRoundRequest struct {
