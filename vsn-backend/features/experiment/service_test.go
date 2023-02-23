@@ -44,6 +44,15 @@ func (repository *experimentRepositoryStub) GetExperiment(ctx context.Context, e
 	return repository.Experiment, repository.Err
 }
 
+type experimentResultRepositoryStub struct {
+	input model.ExperimentResultInput
+}
+
+func (repository *experimentResultRepositoryStub) CreateExperimentResult(ctx context.Context, input model.ExperimentResultInput) (model.ExperimentResult, error) {
+	repository.input = input
+	return model.ExperimentResult{}, nil
+}
+
 func TestServicePending(t *testing.T) {
 	userId := uuid.New()
 	experimentId := uuid.New()
@@ -109,11 +118,15 @@ func TestServicePending(t *testing.T) {
 }
 
 func TestServiceStartAndStopRound(t *testing.T) {
+	trackingId := uuid.New()
+	experimentId := uuid.New()
 	userId1 := uuid.New()
 	userId2 := uuid.New()
 
 	experiment := &activeExperiment{
-		UserId: userId1,
+		TrackingId:   trackingId,
+		ExperimentId: experimentId,
+		UserId:       userId1,
 		ExperimentStatus: model.ExperimentStatus{
 			RoundInProgress: false,
 			RoundsCompleted: 0,
@@ -129,9 +142,12 @@ func TestServiceStartAndStopRound(t *testing.T) {
 		},
 	}
 
+	experimentResults := &experimentResultRepositoryStub{}
+
 	service := &Service{
 		invites:           &inviteRepositoryStub{},
 		activeExperiments: experiments,
+		experimentResults: experimentResults,
 	}
 
 	ctx := context.Background()
@@ -185,6 +201,12 @@ func TestServiceStartAndStopRound(t *testing.T) {
 
 	_, err = service.StartRound(ctx, userId1)
 	assert.ErrorIs(t, err, errExperimentNotFound) // the experiment was deleted
+
+	assert.Equal(t, model.ExperimentResultInput{
+		Id:           trackingId,
+		UserId:       userId1,
+		ExperimentId: experimentId,
+	}, experimentResults.input)
 }
 
 func TestServiceStartExperiment(t *testing.T) {
