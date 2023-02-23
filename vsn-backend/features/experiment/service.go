@@ -150,7 +150,7 @@ func (s *Service) StopRound(ctx context.Context, userId uuid.UUID, data experime
 	// the experiment is done
 	if status.Done() {
 		s.activeExperiments.Delete(userId)
-		s.experimentResults.CreateExperimentResult(ctx, model.ExperimentResultInput{
+		_, _ = s.experimentResults.CreateExperimentResult(ctx, model.ExperimentResultInput{
 			Id:           experiment.TrackingId,
 			UserId:       experiment.UserId,
 			ExperimentId: experiment.ExperimentId,
