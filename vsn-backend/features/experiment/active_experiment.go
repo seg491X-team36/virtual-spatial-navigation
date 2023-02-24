@@ -90,7 +90,7 @@ func (ae *activeExperiment) Resume() {
 
 	// if the reward has been found, then stop the round
 	if ae.RewardFound {
-		ae.StopRound(experimentData{})
+		_ = ae.StopRound(experimentData{})
 		ae.RecordEvent(eventResumeNoEffect) // record the event as part of the next round
 		return
 	}
@@ -104,7 +104,6 @@ func (ae *activeExperiment) Resume() {
 	// resume and reset round
 	ae.RecordEvent(eventResumeReset)
 	ae.reset()
-	return
 }
 
 func (ae *activeExperiment) Record(data experimentData) {
