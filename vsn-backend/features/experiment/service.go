@@ -35,7 +35,7 @@ func NewService(
 	factory recorderFactory,
 ) ExperimentService {
 	return &syncExperimentService{
-		Map: experimentsync.NewMap(),
+		UserMap: experimentsync.NewMap(),
 		service: &Service{
 			invites:           invites,
 			experiments:       experiments,
