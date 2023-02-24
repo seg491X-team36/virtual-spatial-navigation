@@ -13,7 +13,6 @@ type activeExperiment struct {
 	UserId       uuid.UUID
 	recorder     recorder
 	latestFrame  *frame // track the latest frame
-
 	model.ExperimentStatus
 	model.ExperimentConfig
 }

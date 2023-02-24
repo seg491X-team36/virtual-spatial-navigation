@@ -52,19 +52,19 @@ func (r *FSRecorder) Record(round int, data experimentData) {
 	wg.Add(2)
 
 	go func() {
-		r.RecordEvents(round, data.Events)
+		r.recordEvents(round, data.Events)
 		wg.Done()
 	}()
 
 	go func() {
-		r.RecordFrames(round, data.Frames)
+		r.recordFrames(round, data.Frames)
 		wg.Done()
 	}()
 
 	wg.Wait()
 }
 
-func (r *FSRecorder) RecordEvents(round int, events []event) {
+func (r *FSRecorder) recordEvents(round int, events []event) {
 	if len(events) == 0 {
 		return
 	}
@@ -83,7 +83,7 @@ func (r *FSRecorder) RecordEvents(round int, events []event) {
 	eventWriter.Write(events, w)
 }
 
-func (r *FSRecorder) RecordFrames(round int, frames []frame) {
+func (r *FSRecorder) recordFrames(round int, frames []frame) {
 	if len(frames) == 0 {
 		return
 	}

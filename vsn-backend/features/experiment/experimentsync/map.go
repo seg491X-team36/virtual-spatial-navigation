@@ -9,14 +9,14 @@ import (
 
 // Adapted from: https://stackoverflow.com/questions/40931373/how-to-gc-a-map-of-mutexes-in-go
 
-// Map wraps a map of mutexes.  Each key locks separately.
-type Map struct {
+// UserMap wraps a map of mutexes.  Each key locks separately.
+type UserMap struct {
 	ml sync.Mutex            // lock for entry map
 	ma map[uuid.UUID]*mentry // entry map
 }
 
 type mentry struct {
-	m   *Map       // point back to M, so we can synchronize removing this mentry when cnt==0
+	m   *UserMap   // point back to M, so we can synchronize removing this mentry when cnt==0
 	el  sync.Mutex // entry-specific lock
 	cnt int        // reference count
 	key uuid.UUID  // key in ma
@@ -28,14 +28,14 @@ type Unlocker interface {
 }
 
 // New returns an initalized M.
-func NewMap() *Map {
-	return &Map{ma: make(map[uuid.UUID]*mentry)}
+func NewMap() *UserMap {
+	return &UserMap{ma: make(map[uuid.UUID]*mentry)}
 }
 
 // Lock acquires a lock corresponding to this key.
 // This method will never return nil and Unlock() must be called
 // to release the lock when done.
-func (m *Map) Lock(userId uuid.UUID) Unlocker {
+func (m *UserMap) Lock(userId uuid.UUID) Unlocker {
 
 	// read or create entry for this key atomically
 	m.ml.Lock()
