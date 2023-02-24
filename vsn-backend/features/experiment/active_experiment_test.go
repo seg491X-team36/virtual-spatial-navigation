@@ -2,145 +2,247 @@ package experiment
 
 import (
 	"testing"
-	"time"
 
 	"github.com/seg491X-team36/vsn-backend/domain/model"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestResume(t *testing.T) {
-	t.Run("tc1", func(t *testing.T) {
-		// not in progress, and RESET_ROUND
-		recorder := &recorderStub{}
-		experiment := &activeExperiment{
-			recorder:    recorder,
-			latestFrame: &frame{},
-			ExperimentStatus: model.ExperimentStatus{
-				RoundInProgress: false, // NOT IN PROGRESS
-				RoundsCompleted: 1,
-				RoundsTotal:     2,
-			},
-			ExperimentConfig: model.ExperimentConfig{
-				RoundsTotal:  2,
-				ResumeConfig: model.RESET_ROUND, // reset round
-			},
+func assertIsReset(t *testing.T, ae *activeExperiment) {
+	// relevant fields have been reset
+	assert.Nil(t, ae.LatestFrame)
+	assert.False(t, ae.RoundInProgress)
+	assert.False(t, ae.RewardFound)
+}
+
+func assertIsNotReset(t *testing.T, ae *activeExperiment) {
+	// used to make sure the round was not reset when resume config is continue
+	assert.NotNil(t, ae.LatestFrame)
+	assert.True(t, ae.RoundInProgress)
+	assert.False(t, ae.RewardFound)
+}
+
+func assertEventsRecordedOrdered(t *testing.T, rec *recorderStub, events ...string) {
+	for i, evt := range events {
+		assert.Equal(t, evt, rec.events[i].Name)
+	}
+}
+
+func assertEventRecorded(t *testing.T, rec *recorderStub, expected string) {
+	recorded := false
+	for _, event := range rec.events {
+		if event.Name == expected {
+			recorded = true
+			break
 		}
+	}
+	assert.True(t, recorded)
+}
 
-		frame := experiment.Resume()
-
-		assert.Nil(t, frame)
-		assert.Equal(t, "RESUME:NO_EFFECT", recorder.events[0].Name)
-		assert.Equal(t, model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundsCompleted: 1,
-			RoundsTotal:     2,
-		}, experiment.ExperimentStatus)
-	})
-
-	t.Run("tc2", func(t *testing.T) {
-		// in progress, and RESET_ROUND
-		recorder := &recorderStub{}
+func TestStartRound(t *testing.T) {
+	t.Run("in-progress", func(t *testing.T) {
 		experiment := &activeExperiment{
-			recorder:    recorder,
-			latestFrame: &frame{},
-			ExperimentStatus: model.ExperimentStatus{
-				RoundInProgress: true,
-				RoundsCompleted: 1,
-				RoundsTotal:     2,
-			},
-			ExperimentConfig: model.ExperimentConfig{
-				RoundsTotal:  2,
-				ResumeConfig: model.RESET_ROUND, // reset round
-			},
-		}
-
-		frame := experiment.Resume()
-
-		assert.Nil(t, frame)
-		assert.Equal(t, "RESUME:RESET_ROUND", recorder.events[0].Name)
-		assert.Equal(t, model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundsCompleted: 1,
-			RoundsTotal:     2,
-		}, experiment.ExperimentStatus)
-	})
-
-	t.Run("tc3", func(t *testing.T) {
-		// in progress, and CONTINUE_ROUND
-		latestFrame := &frame{
-			PositionX: 1,
-			PositionY: 2,
-			PositionZ: 3,
-		}
-		recorder := &recorderStub{}
-		experiment := &activeExperiment{
-			recorder:    recorder,
-			latestFrame: latestFrame,
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: true,
-				RoundsCompleted: 1,
-				RoundsTotal:     2,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
 			},
-			ExperimentConfig: model.ExperimentConfig{
-				RoundsTotal:  2,
-				ResumeConfig: model.CONTINUE_ROUND, // continue round
-			},
+			recorder: &recorderStub{},
 		}
 
-		frame := experiment.Resume()
-
-		assert.Equal(t, latestFrame, frame)
-		assert.Equal(t, "RESUME:CONTINUE_ROUND", recorder.events[0].Name)
-		assert.Equal(t, model.ExperimentStatus{
-			RoundInProgress: true,
-			RoundsCompleted: 1,
-			RoundsTotal:     2,
-		}, experiment.ExperimentStatus)
+		err := experiment.StartRound()
+		assert.ErrorIs(t, err, errExperimentRoundInProgress)
 	})
 
-	t.Run("tc4", func(t *testing.T) {
-		// not in progress, and CONTINUE_ROUND
-		recorder := &recorderStub{}
+	t.Run("not-in-progress", func(t *testing.T) {
+		rec := &recorderStub{}
 		experiment := &activeExperiment{
-			recorder:    recorder,
-			latestFrame: &frame{},
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: false,
-				RoundsCompleted: 1,
-				RoundsTotal:     2,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
 			},
-			ExperimentConfig: model.ExperimentConfig{
-				RoundsTotal:  2,
-				ResumeConfig: model.CONTINUE_ROUND, // continue round
-			},
+			recorder: rec,
 		}
 
-		frame := experiment.Resume()
-
-		assert.Nil(t, frame)
-		assert.Equal(t, "RESUME:NO_EFFECT", recorder.events[0].Name)
-		assert.Equal(t, model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundsCompleted: 1,
-			RoundsTotal:     2,
-		}, experiment.ExperimentStatus)
+		err := experiment.StartRound()
+		assert.NoError(t, err)
+		assert.True(t, experiment.RoundInProgress)
+		assertEventRecorded(t, rec, eventRoundStart)
 	})
 }
 
-func TestExperimentRecord(t *testing.T) {
-	recorder := &recorderStub{}
-	experiment := &activeExperiment{
-		recorder:    recorder,
-		latestFrame: nil,
-	}
+func TestStopRound(t *testing.T) {
+	t.Run("not-in-progress", func(t *testing.T) {
+		experiment := &activeExperiment{
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: false,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: false,
+		}
 
-	experimentEvent := event{Name: "REWARD_FOUND", Timestamp: time.Now().UTC()}
-
-	experiment.Record(experimentData{
-		Frames: []frame{{PositionX: 1}, {PositionX: 2}}, // record 2 frames
-		Events: []event{experimentEvent},                // record 1 event
+		err := experiment.StopRound(experimentData{})
+		assert.ErrorIs(t, err, errExperimentRoundNotInProgress)
 	})
 
-	assert.Equal(t, frame{PositionX: 2}, *experiment.latestFrame) // the second frame is the latest frame
-	assert.Equal(t, experimentEvent, recorder.events[0])          // the event was recorded
+	t.Run("in-progress-reward-not-found", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: false,
+			recorder:    rec,
+			onComplete:  func() {},
+		}
+
+		// reward not found
+		err := experiment.StopRound(experimentData{})
+		assert.ErrorIs(t, err, errExperimentRewardNotFound)
+
+		// reward just found
+		err = experiment.StopRound(experimentData{
+			Events: []event{{Name: eventRewardFound}},
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, experiment.RoundsCompleted)
+		assertIsReset(t, experiment)
+		assertEventRecorded(t, rec, eventRoundStop)
+	})
+
+	t.Run("in-progress-reward-found", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: true,
+			recorder:    rec,
+			onComplete:  func() {},
+		}
+
+		// stop round
+		err := experiment.StopRound(experimentData{})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, experiment.RoundsCompleted)
+		assertIsReset(t, experiment)
+		assertEventRecorded(t, rec, eventRoundStop)
+	})
+}
+
+func TestResume(t *testing.T) {
+	t.Run("not-in-progress", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: false,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			recorder: rec,
+		}
+
+		experiment.Resume()
+		assertEventRecorded(t, rec, eventResumeNoEffect)
+	})
+
+	t.Run("in-progress-reward-found", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: true,
+			LatestFrame: &frame{}, // non nil frame
+			recorder:    rec,
+			onComplete:  func() {},
+		}
+
+		experiment.Resume()
+		assert.Equal(t, 1, experiment.RoundsCompleted)   // reset to the next round
+		assertIsReset(t, experiment)                     // reset to the next round
+		assertEventRecorded(t, rec, eventResumeNoEffect) // recorded as no effect
+	})
+
+	t.Run("in-progress-reset", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			ExperimentConfig: model.ExperimentConfig{
+				ResumeConfig: model.RESET_ROUND,
+			},
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: false,
+			LatestFrame: &frame{}, // non nil frame
+			recorder:    rec,
+		}
+
+		experiment.Resume()
+		assert.Equal(t, 0, experiment.RoundsCompleted) // reset to the start of the round
+		assertIsReset(t, experiment)                   // reset to the start of the round
+		assertEventRecorded(t, rec, eventResumeReset)  // recorded as reset
+	})
+
+	t.Run("in-progress-continue", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			ExperimentConfig: model.ExperimentConfig{
+				ResumeConfig: model.CONTINUE_ROUND,
+			},
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: false,
+			LatestFrame: &frame{}, // non nil frame
+			recorder:    rec,
+			onComplete:  func() {},
+		}
+
+		experiment.Resume()
+		assert.Equal(t, 0, experiment.RoundsCompleted)   // reset to the next round
+		assertIsNotReset(t, experiment)                  // reset to the next round
+		assertEventRecorded(t, rec, eventResumeContinue) // recorded as no effect
+	})
+}
+
+func TestRecord(t *testing.T) {
+	rec := &recorderStub{}
+	experiment := &activeExperiment{
+		RewardFound: false, // IMPORTANT for this test
+		LatestFrame: nil,   // IMPORTANT for this test
+		recorder:    rec,
+	}
+
+	// empty
+	experiment.Record(experimentData{})
+	assert.Equal(t, 0, len(rec.events))
+	assert.Equal(t, 0, len(rec.frames))
+
+	// record some frames and a random event
+	experiment.Record(experimentData{
+		Frames: []frame{{PositionX: 1}, {PositionX: 2}, {PositionX: 3}},
+		Events: []event{{Name: "RANDOM"}},
+	})
+
+	assertEventRecorded(t, rec, "RANDOM")
+	assert.False(t, experiment.RewardFound)
+	assert.Equal(t, 3.0, experiment.LatestFrame.PositionX)
+
+	// record reward found
+	experiment.Record(experimentData{
+		Events: []event{{Name: eventRewardFound}},
+	})
+	assert.True(t, experiment.RewardFound)
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/domain/model"
@@ -19,18 +20,16 @@ func HandlerTC[Request, Response any](
 	t *testing.T,
 	req Request,
 	resExpected Response,
-	target string,
-	expectedStatus int,
 	token string,
-	handler http.HandlerFunc,
+	handler http.Handler,
 ) {
 	reqData, _ := json.Marshal(req)
 
 	// send the http request
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, target, bytes.NewBuffer(reqData))
+	r := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqData))
 	r.Header.Add("token", token)
-	handler(w, r)
+	handler.ServeHTTP(w, r)
 	res := w.Result()
 	defer res.Body.Close()
 
@@ -50,7 +49,7 @@ func TestExperimentHandlers(t *testing.T) {
 	recorder := &recorderStub{}
 
 	experiment := model.Experiment{Id: experimentId, Config: model.ExperimentConfig{
-		RoundsTotal:  2,
+		RoundsTotal:  1,
 		ResumeConfig: model.CONTINUE_ROUND,
 	}}
 
@@ -83,12 +82,14 @@ func TestExperimentHandlers(t *testing.T) {
 		pending := middleware(experimentHandlers.Pending())
 
 		req := pendingExperimentsRequest{}
+
 		res := pendingExperimentsResponse{
 			ExperimentId:         &experimentId,
 			ExperimentInProgress: false,
 			Pending:              1,
 		}
-		HandlerTC(t, req, res, "/pending", http.StatusOK, token, pending.ServeHTTP)
+
+		HandlerTC(t, req, res, token, pending)
 	})
 
 	t.Run("start", func(t *testing.T) {
@@ -100,7 +101,7 @@ func TestExperimentHandlers(t *testing.T) {
 
 		res := startExperimentResponse{
 			Data: &startExperimentData{
-				Experiment: experiment.Config,
+				Config: experiment.Config,
 				Status: model.ExperimentStatus{
 					RoundInProgress: false,
 					RoundsCompleted: 0,
@@ -111,11 +112,11 @@ func TestExperimentHandlers(t *testing.T) {
 			Error: nil,
 		}
 
-		HandlerTC(t, req, res, "/start", http.StatusOK, token, start.ServeHTTP)
+		HandlerTC(t, req, res, token, start)
 	})
 
-	t.Run("round-start", func(t *testing.T) {
-		roundStart := middleware(experimentHandlers.StartRound())
+	t.Run("start-round", func(t *testing.T) {
+		startRound := middleware(experimentHandlers.StartRound())
 
 		req := startRoundRequest{}
 
@@ -128,11 +129,28 @@ func TestExperimentHandlers(t *testing.T) {
 			Error: nil,
 		}
 
-		HandlerTC(t, req, res, "/round/start", http.StatusOK, token, roundStart.ServeHTTP)
+		HandlerTC(t, req, res, token, startRound)
 	})
 
-	t.Run("round-stop", func(t *testing.T) {
-		roundStop := middleware(experimentHandlers.StopRound())
+	t.Run("record", func(t *testing.T) {
+		record := middleware(experimentHandlers.Record())
+
+		req := recordDataRequest{
+			Data: experimentData{
+				Frames: make([]frame, 5),
+				Events: []event{{Name: eventRewardFound, Timestamp: time.Now().UTC()}},
+			},
+		}
+
+		res := recordDataResponse{
+			Error: nil,
+		}
+
+		HandlerTC(t, req, res, token, record)
+	})
+
+	t.Run("stop-round", func(t *testing.T) {
+		stopRound := middleware(experimentHandlers.StopRound())
 
 		req := stopRoundRequest{
 			Data: experimentData{
@@ -149,29 +167,13 @@ func TestExperimentHandlers(t *testing.T) {
 			Error: nil,
 		}
 
-		HandlerTC(t, req, res, "/round/stop", http.StatusOK, token, roundStop.ServeHTTP)
+		HandlerTC(t, req, res, token, stopRound)
 	})
 
-	t.Run("record", func(t *testing.T) {
-		record := middleware(experimentHandlers.Record())
+	// the events were recorded
+	assertEventsRecordedOrdered(t, recorder, eventRoundStart, eventRewardFound, eventRoundStop)
 
-		req := recordDataRequest{
-			Data: experimentData{
-				Frames: make([]frame, 5),
-				Events: make([]event, 1),
-			},
-		}
+	// 5 from the record test case, 5 from the stop round test case
+	assert.Equal(t, 10, len(recorder.frames))
 
-		res := recordDataResponse{
-			Error: nil,
-		}
-
-		HandlerTC(t, req, res, "/record", http.StatusOK, token, record.ServeHTTP)
-	})
-
-	// the record test case includes 1 event, at minimum 1 start round, and 1 stop round should also be recorded
-	assert.GreaterOrEqual(t, len(recorder.events), 3)
-
-	// the record and stop round test case record 5 frames each
-	assert.Equal(t, len(recorder.frames), 10)
 }

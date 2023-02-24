@@ -11,6 +11,7 @@ import (
 var (
 	errExperimentNotFound           = errors.New("experiment not found")
 	errExperimentRoundInProgress    = errors.New("experiment round already in progress")
+	errExperimentRewardNotFound     = errors.New("experiment round reward not found")
 	errExperimentRoundNotInProgress = errors.New("experiment round not in progress")
 )
 
@@ -47,9 +48,9 @@ type startExperimentRequest struct {
 }
 
 type startExperimentData struct {
-	Experiment model.ExperimentConfig `json:"experiment"`
-	Status     model.ExperimentStatus `json:"status"` // always present starting or resuming
-	Frame      *frame                 `json:"frame"`  // the last frame recorded. only present when resuming and continuing from last frame
+	Config model.ExperimentConfig `json:"config"`
+	Status model.ExperimentStatus `json:"status"` // always present starting or resuming
+	Frame  *frame                 `json:"frame"`  // the last frame recorded. only present when resuming and continuing from last frame
 }
 
 type startExperimentResponse struct {

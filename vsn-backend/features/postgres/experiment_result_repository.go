@@ -34,7 +34,7 @@ func (repository *ExperimentResultRepository) CreateExperimentResult(
 	input model.ExperimentResultInput,
 ) (model.ExperimentResult, error) {
 	experimentResult, err := repository.Query.CreateExperimentResult(ctx, db.CreateExperimentResultParams{
-		ID:           input.Id,
+		ID:           input.TrackingId,
 		UserID:       input.UserId,
 		ExperimentID: input.ExperimentId,
 	})

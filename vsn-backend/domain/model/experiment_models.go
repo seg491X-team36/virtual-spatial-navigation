@@ -39,7 +39,7 @@ type ExperimentInput struct {
 }
 
 type ExperimentResultInput struct {
-	Id           uuid.UUID // "TrackingId" in experiments package
+	TrackingId   uuid.UUID // "TrackingId" in experiments package
 	UserId       uuid.UUID
 	ExperimentId uuid.UUID
 }
@@ -69,6 +69,6 @@ func NewExperimentStatus(roundsTotal int) ExperimentStatus {
 	}
 }
 
-func (s ExperimentStatus) Done() bool {
+func (s ExperimentStatus) Complete() bool {
 	return s.RoundsCompleted == s.RoundsTotal && !s.RoundInProgress
 }

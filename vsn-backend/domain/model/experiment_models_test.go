@@ -14,7 +14,7 @@ func TestStatusDone(t *testing.T) {
 			RoundsTotal:     2,
 		}
 
-		assert.False(t, s1.Done())
+		assert.False(t, s1.Complete())
 	})
 
 	t.Run("tc2", func(t *testing.T) {
@@ -24,7 +24,7 @@ func TestStatusDone(t *testing.T) {
 			RoundsTotal:     2,
 		}
 
-		assert.False(t, s1.Done())
+		assert.False(t, s1.Complete())
 	})
 
 	t.Run("tc3", func(t *testing.T) {
@@ -34,7 +34,7 @@ func TestStatusDone(t *testing.T) {
 			RoundsTotal:     2,
 		}
 
-		assert.False(t, s1.Done())
+		assert.False(t, s1.Complete())
 	})
 
 	t.Run("tc4", func(t *testing.T) {
@@ -44,6 +44,6 @@ func TestStatusDone(t *testing.T) {
 			RoundsTotal:     2,
 		}
 
-		assert.True(t, s1.Done())
+		assert.True(t, s1.Complete())
 	})
 }

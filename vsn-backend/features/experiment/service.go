@@ -79,7 +79,7 @@ func (s *Service) Pending(ctx context.Context, userId uuid.UUID) pendingExperime
 }
 
 func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid.UUID) (*startExperimentData, error) {
-	// get the pending experiment
+	// get any pending experiment
 	res := s.Pending(ctx, userId)
 
 	// pending experiment in progress
@@ -97,42 +97,34 @@ func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid
 		return nil, errExperimentNotFound
 	}
 
-	experiment, _ := s.experiments.GetExperiment(ctx, *res.ExperimentId)
+	// get the experiment
+	experiment, _ := s.experiments.GetExperiment(ctx, experimentId)
+
+	trackingId := uuid.New()
 
 	// create the active experiment
 	activeExperiment := &activeExperiment{
-		TrackingId:   uuid.New(), // assign a new tracking id
-		ExperimentId: experimentId,
-		UserId:       userId,
-
-		ExperimentStatus: model.NewExperimentStatus(experiment.Config.RoundsTotal),
+		ExperimentId:     experimentId,
 		ExperimentConfig: experiment.Config,
+		ExperimentStatus: model.NewExperimentStatus(experiment.Config.RoundsTotal),
+		LatestFrame:      nil,
+		RewardFound:      false,
 
-		// create the recorder
 		recorder: s.recorderFactory(recorderParams{
 			ExperimentId: experimentId,
-			TrackingId:   experimentId,
+			TrackingId:   trackingId,
 		}),
+		onComplete: s.onComplete(experimentId, trackingId, userId),
 	}
 
 	s.activeExperiments.Set(userId, activeExperiment)
-
-	return &startExperimentData{
-		Experiment: activeExperiment.ExperimentConfig,
-		Status:     activeExperiment.ExperimentStatus,
-		Frame:      nil,
-	}, nil
+	return activeExperiment.StartExperimentData(), nil
 }
 
 func (s *Service) ResumeExperiment(ctx context.Context, userId, experimentId uuid.UUID) (*startExperimentData, error) {
 	experiment, _ := s.activeExperiments.Get(userId)
-	frame := experiment.Resume()
-
-	return &startExperimentData{
-		Experiment: experiment.ExperimentConfig,
-		Status:     experiment.ExperimentStatus,
-		Frame:      frame,
-	}, nil
+	experiment.Resume()
+	return experiment.StartExperimentData(), nil
 }
 
 func (s *Service) StartRound(ctx context.Context, userId uuid.UUID) (*model.ExperimentStatus, error) {
@@ -142,8 +134,9 @@ func (s *Service) StartRound(ctx context.Context, userId uuid.UUID) (*model.Expe
 		return nil, err
 	}
 
-	// call start round
-	status, err := experiment.StartRound()
+	// start round
+	err = experiment.StartRound()
+	status := experiment.Status()
 	return &status, err
 }
 
@@ -154,19 +147,9 @@ func (s *Service) StopRound(ctx context.Context, userId uuid.UUID, data experime
 		return nil, err
 	}
 
-	// call stop round
-	status, err := experiment.StopRound(data)
-
-	// the experiment is done
-	if status.Done() {
-		s.activeExperiments.Delete(userId)
-		_, _ = s.experimentResults.CreateExperimentResult(ctx, model.ExperimentResultInput{
-			Id:           experiment.TrackingId,
-			UserId:       experiment.UserId,
-			ExperimentId: experiment.ExperimentId,
-		})
-	}
-
+	// stop round
+	err = experiment.StopRound(data)
+	status := experiment.Status()
 	return &status, err
 }
 
@@ -179,4 +162,18 @@ func (s *Service) Record(ctx context.Context, userId uuid.UUID, data experimentD
 
 	experiment.Record(data)
 	return nil
+}
+
+func (s *Service) onComplete(experimentId, trackingId, userId uuid.UUID) func() {
+	return func() {
+		// on complete create the experiment result
+		_, _ = s.experimentResults.CreateExperimentResult(context.Background(), model.ExperimentResultInput{
+			ExperimentId: experimentId,
+			TrackingId:   trackingId,
+			UserId:       userId,
+		})
+
+		// update active experiments cache
+		s.activeExperiments.Delete(userId)
+	}
 }
