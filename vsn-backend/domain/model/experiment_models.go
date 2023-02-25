@@ -21,8 +21,28 @@ type Experiment struct {
 }
 
 type ExperimentConfig struct {
-	RoundsTotal  int                    `json:"roundsTotalConfig"`
-	ResumeConfig ExperimentResumeConfig `json:"resumeConfig"`
+	RoundsTotal    int                    `json:"roundsTotal"`
+	ResumeConfig   ExperimentResumeConfig `json:"resumeConfig"`
+	SpawnSequence  []int                  `json:"spawnSequence"`
+	RewardPosition int                    `json:"rewardPosition"`
+	Arena          Arena                  `json:"arena"`
+}
+
+type Arena struct {
+	Objects         []string   `json:"objects"` // string identifier known by unity game
+	RewardPositions []Position `json:"rewardPositions"`
+	SpawnPositions  []Position `json:"spawnPositions"`
+}
+
+type ArenaObject struct {
+	Object   string   `json:"object"` // string identifier
+	Position Position `json:"position"`
+}
+
+type Position struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	Z float64 `json:"z"`
 }
 
 type ExperimentResult struct {
