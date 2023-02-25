@@ -17,11 +17,11 @@ const (
 )
 
 type activeExperiment struct {
-	// id fields
+	// experiment id, config
 	ExperimentId uuid.UUID
+	Config       model.ExperimentConfig
 
-	// experiment config, status, and round information fields
-	model.ExperimentConfig
+	// experiment status, and round information fields
 	model.ExperimentStatus
 	LatestFrame *frame
 	RewardFound bool
@@ -37,7 +37,7 @@ func (ae *activeExperiment) Status() model.ExperimentStatus {
 
 func (ae *activeExperiment) StartExperimentData() *startExperimentData {
 	return &startExperimentData{
-		Config: ae.ExperimentConfig,
+		Config: ae.Config,
 		Status: ae.ExperimentStatus,
 		Frame:  ae.LatestFrame,
 	}
@@ -96,7 +96,7 @@ func (ae *activeExperiment) Resume() {
 	}
 
 	// resume and continue round
-	if ae.ResumeConfig == model.CONTINUE_ROUND {
+	if ae.Config.Resume == model.CONTINUE_ROUND {
 		ae.RecordEvent(eventResumeContinue)
 		return
 	}
