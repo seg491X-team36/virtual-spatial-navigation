@@ -21,7 +21,7 @@ type Experiment struct {
 }
 
 type ExperimentConfig struct {
-	RoundsTotal    int                    `json:"roundsTotal"`
+	RoundsTotal    int                    `json:"roundsTotalConfig"`
 	ResumeConfig   ExperimentResumeConfig `json:"resumeConfig"`
 	SpawnSequence  []int                  `json:"spawnSequence"`
 	RewardPosition int                    `json:"rewardPosition"`
@@ -78,7 +78,7 @@ stop round -> {"roundInProgress": false, "roundNumber": 3} DONE
 type ExperimentStatus struct {
 	RoundInProgress bool `json:"roundInProgress"`
 	RoundsCompleted int  `json:"roundsCompleted"`
-	RoundsTotal     int  `json:"-"` // omitted in json
+	RoundsTotal     int  `json:"roundsTotal"` // omitted in json
 }
 
 func NewExperimentStatus(roundsTotal int) ExperimentStatus {
