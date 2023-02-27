@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import NavBar from '../components/NavBar';
 
+import 'semantic-ui-css/semantic.min.css'
+
 const Home = () => {
     return(
-        <div>
-            <h1>Home</h1>
-        </div>
+        <>
+        <h1>Home</h1>
+        </>
     )
 };
 

@@ -1,8 +1,12 @@
+import 'semantic-ui-css/semantic.min.css'
+
+import NavBar from '../components/NavBar';
+
 const ViewRejectedSignUps = () => {
     return(
-        <div>
-            <h1>Rejected</h1>
-        </div>
+        <>
+        <h1>Home</h1>
+        </>
     )
 };
 
