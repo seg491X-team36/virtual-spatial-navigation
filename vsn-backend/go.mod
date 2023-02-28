@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
 	github.com/lib/pq v1.10.7
+	github.com/spf13/afero v1.9.3
 	github.com/stretchr/testify v1.8.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 )

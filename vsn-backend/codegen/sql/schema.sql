@@ -10,7 +10,8 @@ CREATE TABLE users (
 CREATE TABLE experiments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    config JSON NOT NULL
 );
 
 CREATE TABLE experiment_results (
@@ -27,7 +28,6 @@ CREATE TABLE invites (
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     user_id UUID NOT NULL,
     experiment_id UUID NOT NULL,
-    supervised BOOLEAN NOT NULL,
     CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id),
     CONSTRAINT fk_experiment FOREIGN KEY(experiment_id) REFERENCES experiments(id)
 );
