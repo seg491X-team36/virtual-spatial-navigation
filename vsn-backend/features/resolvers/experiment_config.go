@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 
 	"github.com/seg491X-team36/vsn-backend/domain/model"
 )
@@ -10,10 +9,10 @@ import (
 type ExperimentConfigResolvers struct {
 }
 
-func (r *ExperimentConfigResolvers) Rounds(ctx context.Context, obj *model.ExperimentConfig) (int, error) {
-	return 0, errors.New("not implemented")
+func (r *ExperimentConfigResolvers) Rounds(ctx context.Context, config *model.ExperimentConfig) (int, error) {
+	return config.RoundsTotal, nil
 }
 
-func (r *ExperimentConfigResolvers) Resume(ctx context.Context, obj *model.ExperimentConfig) (model.ExperimentResumeConfig, error) {
-	return model.CONTINUE_ROUND, errors.New("not implemented")
+func (r *ExperimentConfigResolvers) Resume(ctx context.Context, config *model.ExperimentConfig) (model.ExperimentResumeConfig, error) {
+	return config.Resume, nil
 }
