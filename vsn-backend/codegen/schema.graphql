@@ -65,7 +65,7 @@ type Query {
 type Mutation {
     # users
     userRegister(email: String!): UserPayload! 
-    userSelect(input: [UserSelectInput!]!): [UserSelectPayload!]!
+    userSelect(input: [UserSelectInput!]!): [UserPayload!]!
 
     # invites
     invite(input: [InviteInput!]!): [InvitePayload!]!
@@ -83,7 +83,7 @@ input InviteInput {
 
 type InvitePayload {
     invite: Invite
-    error: String!
+    error: String
 }
 
 type UserPayload {
@@ -94,9 +94,4 @@ type UserPayload {
 input UserSelectInput {
     userId: ID!
     accept: Boolean!
-}
-
-type UserSelectPayload {
-    user: User!
-    error: String!
 }
