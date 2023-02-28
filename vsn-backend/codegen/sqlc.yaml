@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - schema: "sql/schema.sql"
+    queries:
+      - "sql/example.sql"
+      - "sql/invite.sql"
+      - "sql/user.sql"
+      - "sql/experiment.sql"
+      - "sql/experiment_result.sql"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "db"
+        out: "db"
