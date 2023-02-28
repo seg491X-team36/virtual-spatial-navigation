@@ -205,8 +205,8 @@ func TestServiceStartExperiment(t *testing.T) {
 	experiment := model.Experiment{
 		Id: experimentId,
 		Config: model.ExperimentConfig{
-			RoundsTotal:  2,
-			ResumeConfig: model.RESET_ROUND,
+			RoundsTotal: 2,
+			Resume:      model.RESET_ROUND,
 		},
 	}
 
@@ -243,10 +243,10 @@ func TestServiceStartExperiment(t *testing.T) {
 				RoundsCompleted: 1,
 				RoundsTotal:     2,
 			},
-			ExperimentConfig: experiment.Config,
-			RewardFound:      false,    // reward not found
-			LatestFrame:      &frame{}, // round in progress, last frame is not nil
-			recorder:         &recorderStub{},
+			Config:      experiment.Config,
+			RewardFound: false,    // reward not found
+			LatestFrame: &frame{}, // round in progress, last frame is not nil
+			recorder:    &recorderStub{},
 		}
 
 		service := &Service{

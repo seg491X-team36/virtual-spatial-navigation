@@ -105,7 +105,7 @@ func (s *Service) StartExperiment(ctx context.Context, userId, experimentId uuid
 	// create the active experiment
 	activeExperiment := &activeExperiment{
 		ExperimentId:     experimentId,
-		ExperimentConfig: experiment.Config,
+		Config:           experiment.Config,
 		ExperimentStatus: model.NewExperimentStatus(experiment.Config.RoundsTotal),
 		LatestFrame:      nil,
 		RewardFound:      false,

@@ -49,8 +49,8 @@ func TestExperimentHandlers(t *testing.T) {
 	recorder := &recorderStub{}
 
 	experiment := model.Experiment{Id: experimentId, Config: model.ExperimentConfig{
-		RoundsTotal:  1,
-		ResumeConfig: model.CONTINUE_ROUND,
+		RoundsTotal: 1,
+		Resume:      model.CONTINUE_ROUND,
 	}}
 
 	service := NewService(

@@ -174,8 +174,8 @@ func TestResume(t *testing.T) {
 	t.Run("in-progress-reset", func(t *testing.T) {
 		rec := &recorderStub{}
 		experiment := &activeExperiment{
-			ExperimentConfig: model.ExperimentConfig{
-				ResumeConfig: model.RESET_ROUND,
+			Config: model.ExperimentConfig{
+				Resume: model.RESET_ROUND,
 			},
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: true,
@@ -196,8 +196,8 @@ func TestResume(t *testing.T) {
 	t.Run("in-progress-continue", func(t *testing.T) {
 		rec := &recorderStub{}
 		experiment := &activeExperiment{
-			ExperimentConfig: model.ExperimentConfig{
-				ResumeConfig: model.CONTINUE_ROUND,
+			Config: model.ExperimentConfig{
+				Resume: model.CONTINUE_ROUND,
 			},
 			ExperimentStatus: model.ExperimentStatus{
 				RoundInProgress: true,
