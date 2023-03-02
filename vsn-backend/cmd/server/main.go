@@ -6,12 +6,21 @@ import (
 	"github.com/seg491X-team36/vsn-backend/features/experiment"
 	"github.com/seg491X-team36/vsn-backend/features/resolvers"
 	"github.com/seg491X-team36/vsn-backend/server"
+	"github.com/spf13/afero"
 )
 
 func main() {
+	recorder := experiment.NewFSRecorderFactory(
+		afero.NewBasePathFs(afero.NewOsFs(), "./data"),
+	)
+
 	srv := &server.Server{
-		ExperimentHandlers:   &experiment.ExperimentHandlers{},
-		VerificationHandlers: &experiment.VerificationHandlers{},
+		ExperimentHandlers: &experiment.ExperimentHandlers{
+			ExperimentService: experiment.NewService(nil, nil, nil, recorder), // TODO
+		},
+		VerificationHandlers: &experiment.VerificationHandlers{
+			// TODO
+		},
 		Resolvers: &resolvers.Root{
 			ExperimentResolver:       &resolvers.ExperimentResolvers{},
 			ExperimentResultResolver: &resolvers.ExperimentResultResolvers{},

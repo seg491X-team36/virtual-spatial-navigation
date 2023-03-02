@@ -21,8 +21,28 @@ type Experiment struct {
 }
 
 type ExperimentConfig struct {
-	RoundsTotal  int
-	ResumeConfig ExperimentResumeConfig
+	RoundsTotal    int                    `json:"roundsTotal"`
+	Resume         ExperimentResumeConfig `json:"resume"`
+	SpawnSequence  []int                  `json:"spawnSequence"`
+	RewardPosition int                    `json:"rewardPosition"`
+	Arena          Arena                  `json:"arena"`
+}
+
+type Arena struct {
+	Objects         []string   `json:"objects"` // string identifier known by unity game
+	RewardPositions []Position `json:"rewardPositions"`
+	SpawnPositions  []Position `json:"spawnPositions"`
+}
+
+type ArenaObject struct {
+	Object   string   `json:"object"` // string identifier
+	Position Position `json:"position"`
+}
+
+type Position struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	Z float64 `json:"z"`
 }
 
 type ExperimentResult struct {
@@ -39,7 +59,7 @@ type ExperimentInput struct {
 }
 
 type ExperimentResultInput struct {
-	Id           uuid.UUID // "TrackingId" in experiments package
+	TrackingId   uuid.UUID // "TrackingId" in experiments package
 	UserId       uuid.UUID
 	ExperimentId uuid.UUID
 }
@@ -57,10 +77,18 @@ stop round -> {"roundInProgress": false, "roundNumber": 3} DONE
 */
 type ExperimentStatus struct {
 	RoundInProgress bool `json:"roundInProgress"`
-	RoundNumber     int  `json:"roundNumber"`
+	RoundsCompleted int  `json:"roundsCompleted"`
 	RoundsTotal     int  `json:"roundsTotal"`
 }
 
-func (s ExperimentStatus) Done() bool {
-	return s.RoundNumber == s.RoundsTotal && !s.RoundInProgress
+func NewExperimentStatus(roundsTotal int) ExperimentStatus {
+	return ExperimentStatus{
+		RoundInProgress: false,
+		RoundsCompleted: 0,
+		RoundsTotal:     roundsTotal,
+	}
+}
+
+func (s ExperimentStatus) Complete() bool {
+	return s.RoundsCompleted == s.RoundsTotal && !s.RoundInProgress
 }

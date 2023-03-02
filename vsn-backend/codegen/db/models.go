@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -59,6 +60,7 @@ type Experiment struct {
 	ID          uuid.UUID
 	Name        string
 	Description string
+	Config      json.RawMessage
 }
 
 type ExperimentResult struct {
