@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import NavBar from '../components/NavBar';
 
 import 'semantic-ui-css/semantic.min.css'
 

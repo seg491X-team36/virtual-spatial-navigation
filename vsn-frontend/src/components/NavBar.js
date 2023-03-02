@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import { Link, Outlet } from "react-router-dom";
-
 import 'semantic-ui-css/semantic.min.css'
 import { Menu, Grid, Icon, Header, Segment, Sidebar } from 'semantic-ui-react'
 
