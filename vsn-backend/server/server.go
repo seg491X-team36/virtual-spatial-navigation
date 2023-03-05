@@ -12,7 +12,7 @@ import (
 )
 
 type Server struct {
-	UserTokenVerifier    security.TokenVerifier
+	UserVerifier         security.UserVerifier
 	ExperimentHandlers   *experiment.ExperimentHandlers
 	VerificationHandlers *experiment.VerificationHandlers
 	Resolvers            graph.ResolverRoot
@@ -41,7 +41,7 @@ func (s *Server) Handler() http.Handler {
 
 		// experiment routes
 		r.Group(func(r chi.Router) {
-			r.Use(security.AuthMiddleware(s.UserTokenVerifier))
+			r.Use(security.Middleware(s.UserVerifier))
 			// routes
 			r.Post("/start", s.ExperimentHandlers.StartExperiment())
 			r.Post("/pending", s.ExperimentHandlers.Pending())

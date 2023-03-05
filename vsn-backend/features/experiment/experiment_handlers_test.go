@@ -68,15 +68,16 @@ func TestExperimentHandlers(t *testing.T) {
 		ExperimentService: service,
 	}
 
-	tokens := &verification.TokenManager{
-		Secret: []byte("secret"),
+	tokens := &verification.TokenManager[model.UserClaims]{
+		Secret:       []byte("secret"),
+		ExpiresAfter: time.Minute * 5,
 	}
 
-	token := tokens.Generate(verification.Token{
+	token := tokens.Generate(model.UserClaims{
 		UserId: userId,
 	})
 
-	middleware := security.AuthMiddleware(tokens)
+	middleware := security.Middleware(tokens)
 
 	t.Run("pending", func(t *testing.T) {
 		pending := middleware(experimentHandlers.Pending())
