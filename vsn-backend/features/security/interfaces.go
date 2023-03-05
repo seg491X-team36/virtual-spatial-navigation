@@ -12,6 +12,10 @@ type tokenVerifier[C any] interface {
 	Verify(token string) (C, error)
 }
 
+type tokenGenerator[C any] interface {
+	Generate(claims C) string
+}
+
 type UserVerifier tokenVerifier[model.UserClaims]
 
 type AdminVerifier tokenVerifier[model.UserClaims]
