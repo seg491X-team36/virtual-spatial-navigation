@@ -26,7 +26,7 @@ type PendingRequest struct {
 type Service struct {
 	Users            verificationUserRepository
 	Email            verificationEmailService
-	Tokens           *TokenManager
+	Tokens           *TokenManager[model.UserClaims]
 	Codes            *CodeGenerator
 	CodesExpireAfter time.Duration
 	Pending          map[string]PendingRequest
@@ -62,7 +62,7 @@ func (s *Service) EnterVerificationCode(email, code string) (string, error) {
 	delete(s.Pending, email)
 
 	// generate the token
-	token := s.Tokens.Generate(Token{UserId: request.userId})
+	token := s.Tokens.Generate(model.UserClaims{UserId: request.userId})
 	return token, nil
 }
 

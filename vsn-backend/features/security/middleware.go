@@ -3,22 +3,9 @@ package security
 import (
 	"context"
 	"net/http"
-
-	"github.com/seg491X-team36/vsn-backend/features/security/verification"
 )
 
-const tokenHeader = "token" // tokens should be stored in
-
-type TokenVerifier interface {
-	Verify(tokenString string) (verification.Token, error)
-}
-
-func AuthToken(ctx context.Context) (token verification.Token, ok bool) {
-	token, ok = ctx.Value(tokenHeader).(verification.Token)
-	return token, ok
-}
-
-func AuthMiddleware(verifier TokenVerifier) func(http.Handler) http.Handler {
+func Middleware(verifier UserVerifier) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// verify the token

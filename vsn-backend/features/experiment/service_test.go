@@ -14,7 +14,13 @@ type recorderStub struct {
 	frames []frame
 }
 
-func (r *recorderStub) Record(metadata recorderMetadata, data experimentData) {
+func recorderStubFactory(stub *recorderStub) recorderFactory {
+	return func(params recorderParams) recorder {
+		return stub
+	}
+}
+
+func (r *recorderStub) Record(round int, data experimentData) {
 	r.events = append(r.events, data.Events...)
 	r.frames = append(r.frames, data.Frames...)
 }
@@ -38,11 +44,20 @@ func (repository *experimentRepositoryStub) GetExperiment(ctx context.Context, e
 	return repository.Experiment, repository.Err
 }
 
+type experimentResultRepositoryStub struct {
+	input model.ExperimentResultInput
+}
+
+func (repository *experimentResultRepositoryStub) CreateExperimentResult(ctx context.Context, input model.ExperimentResultInput) (model.ExperimentResult, error) {
+	repository.input = input
+	return model.ExperimentResult{}, nil
+}
+
 func TestServicePending(t *testing.T) {
 	userId := uuid.New()
 	experimentId := uuid.New()
 
-	t.Run("in-progress", func(t *testing.T) {
+	t.Run("active-one-invite", func(t *testing.T) {
 		service := &Service{
 			invites: &inviteRepositoryStub{
 				Invites: []model.Invite{
@@ -52,7 +67,6 @@ func TestServicePending(t *testing.T) {
 			activeExperiments: &activeExperimentCache{
 				experiments: map[uuid.UUID]*activeExperiment{
 					userId: {
-						UserId:       userId,
 						ExperimentId: experimentId,
 						recorder:     &recorderStub{},
 					},
@@ -61,12 +75,12 @@ func TestServicePending(t *testing.T) {
 		}
 
 		res := service.Pending(context.Background(), userId)
-		assert.True(t, res.ExperimentInProgress)         // experiment is in progress
+		assert.True(t, res.ExperimentInProgress)
 		assert.Equal(t, experimentId, *res.ExperimentId) // experiment id is correct
 		assert.Equal(t, 0, res.Pending)                  // no pending experiments because the experiment is in progress
 	})
 
-	t.Run("not-in-progress-with-invites", func(t *testing.T) {
+	t.Run("no-active-one-invite", func(t *testing.T) {
 		// service with no active experiment
 		service := &Service{
 			invites: &inviteRepositoryStub{
@@ -80,12 +94,15 @@ func TestServicePending(t *testing.T) {
 		}
 
 		res := service.Pending(context.Background(), userId)
-		assert.False(t, res.ExperimentInProgress)        // experiment not in progress
-		assert.Equal(t, experimentId, *res.ExperimentId) // experiment id is correct
-		assert.Equal(t, 1, res.Pending)                  // one pending experiment
+
+		assert.Equal(t, pendingExperimentsResponse{
+			ExperimentId:         &experimentId,
+			ExperimentInProgress: false,
+			Pending:              1,
+		}, res)
 	})
 
-	t.Run("not-in-progress-without-invites", func(t *testing.T) {
+	t.Run("no-active-no-invite", func(t *testing.T) {
 		service := &Service{
 			invites: &inviteRepositoryStub{
 				Invites: []model.Invite{},
@@ -96,89 +113,85 @@ func TestServicePending(t *testing.T) {
 		}
 
 		res := service.Pending(context.Background(), userId)
-		assert.False(t, res.ExperimentInProgress) // experimennt not in progress
-		assert.Nil(t, res.ExperimentId)           // no pending experiment
-		assert.Equal(t, 0, res.Pending)           // no pending experiments
+		assert.Equal(t, pendingExperimentsResponse{
+			ExperimentId:         nil,
+			ExperimentInProgress: false,
+			Pending:              0,
+		}, res)
 	})
 }
 
 func TestServiceStartAndStopRound(t *testing.T) {
-	userId1 := uuid.New()
-	userId2 := uuid.New()
+	experimentId := uuid.New()
+	userId := uuid.New()
+	trackingId := uuid.New()
 
-	experiment := &activeExperiment{
-		UserId: userId1,
-		ExperimentStatus: model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundNumber:     0,
-			RoundsTotal:     2,
-		},
-		recorder:    &recorderStub{},
-		latestFrame: &frame{},
-	}
-
-	experiments := &activeExperimentCache{
-		experiments: map[uuid.UUID]*activeExperiment{
-			userId1: experiment,
-		},
-	}
+	results := &experimentResultRepositoryStub{}
 
 	service := &Service{
 		invites:           &inviteRepositoryStub{},
-		activeExperiments: experiments,
+		experiments:       &experimentRepositoryStub{},
+		experimentResults: results,
+		activeExperiments: &activeExperimentCache{
+			experiments: map[uuid.UUID]*activeExperiment{},
+		},
 	}
+
+	ae := &activeExperiment{
+		ExperimentId: experimentId,
+		ExperimentStatus: model.ExperimentStatus{
+			RoundInProgress: false,
+			RoundsCompleted: 0,
+			RoundsTotal:     1,
+		},
+		recorder:    &recorderStub{},
+		LatestFrame: &frame{},
+		onComplete:  service.onComplete(experimentId, trackingId, userId),
+	}
+
+	service.activeExperiments.Set(userId, ae)
 
 	ctx := context.Background()
 
 	// start round for a user with no active experiments
-	status, err := service.StartRound(ctx, userId2)
+	status, err := service.StartRound(ctx, uuid.New())
 	assert.ErrorIs(t, err, errExperimentNotFound)
 	assert.Nil(t, status)
 
 	// stop round for a user with no active experiments
-	status, err = service.StopRound(ctx, userId2, experimentData{})
+	status, err = service.StopRound(ctx, uuid.New(), experimentData{})
 	assert.ErrorIs(t, err, errExperimentNotFound)
 	assert.Nil(t, status)
 
-	// stop round for a user with round not in progress
-	status, err = service.StopRound(ctx, userId1, experimentData{})
-	assert.ErrorIs(t, err, errExperimentRoundNotInProgress)
+	// start round
+	res, err := service.StartRound(ctx, userId)
+	assert.NoError(t, err)
+	assert.Equal(t, &model.ExperimentStatus{
+		RoundInProgress: true,
+		RoundsCompleted: 0,
+		RoundsTotal:     1,
+	}, res)
+
+	ae.RewardFound = true
+
+	// stop round
+	res, err = service.StopRound(ctx, userId, experimentData{})
+	assert.NoError(t, err)
 	assert.Equal(t, &model.ExperimentStatus{
 		RoundInProgress: false,
-		RoundNumber:     0,
-		RoundsTotal:     2,
-	}, status) // still returns the status even if the round is not stopped
+		RoundsCompleted: 1,
+		RoundsTotal:     1,
+	}, res)
 
-	for i := 0; i < 2; i++ {
-		// start round
-		status, err = service.StartRound(ctx, userId1)
-		expected := &model.ExperimentStatus{
-			RoundInProgress: true,
-			RoundNumber:     i,
-			RoundsTotal:     2,
-		}
-		assert.NoError(t, err)
-		assert.Equal(t, expected, status)
+	// verifying onComplete was executed
+	_, err = service.activeExperiments.Get(userId)
+	assert.ErrorIs(t, err, errExperimentNotFound)
 
-		// start round gives an error because the round is in progress
-		status, err = service.StartRound(ctx, userId1)
-		assert.ErrorIs(t, err, errExperimentRoundInProgress)
-		assert.Equal(t, expected, status) // status does not change
-
-		// stop round
-		status, err = service.StopRound(ctx, userId1, experimentData{})
-		assert.NoError(t, err)
-		assert.Equal(t, &model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundNumber:     i + 1,
-			RoundsTotal:     2,
-		}, status)
-
-		assert.Nil(t, experiment.latestFrame) // the latest frame was reset
-	}
-
-	_, err = service.StartRound(ctx, userId1)
-	assert.ErrorIs(t, err, errExperimentNotFound) // the experiment was deleted
+	assert.Equal(t, model.ExperimentResultInput{
+		TrackingId:   trackingId,
+		UserId:       userId,
+		ExperimentId: experimentId,
+	}, results.input)
 }
 
 func TestServiceStartExperiment(t *testing.T) {
@@ -186,22 +199,20 @@ func TestServiceStartExperiment(t *testing.T) {
 	experimentId := uuid.New()
 
 	invite := model.Invite{
-		ID:           uuid.New(),
-		UserID:       userId,
 		ExperimentID: experimentId,
 	}
 
 	experiment := model.Experiment{
 		Id: experimentId,
 		Config: model.ExperimentConfig{
-			RoundsTotal:  2,
-			ResumeConfig: model.RESET_ROUND,
+			RoundsTotal: 2,
+			Resume:      model.RESET_ROUND,
 		},
 	}
 
 	ctx := context.Background()
 
-	t.Run("happy-path", func(t *testing.T) {
+	t.Run("start-experiment-happy-path", func(t *testing.T) {
 		service := &Service{
 			invites: &inviteRepositoryStub{
 				Invites: []model.Invite{invite},
@@ -213,22 +224,31 @@ func TestServiceStartExperiment(t *testing.T) {
 			activeExperiments: &activeExperimentCache{
 				experiments: map[uuid.UUID]*activeExperiment{},
 			},
+			recorderFactory: recorderStubFactory(&recorderStub{}),
 		}
 
 		res, err := service.StartExperiment(ctx, userId, experimentId)
 
-		// return values all make sense
 		assert.NoError(t, err)
-		assert.Nil(t, res.Frame)
-		assert.Equal(t, experiment.Config, res.Experiment)
-		assert.Equal(t, model.ExperimentStatus{
-			RoundInProgress: false,
-			RoundNumber:     0,
-			RoundsTotal:     2,
-		}, res.Status)
+		assert.Equal(t, experiment.Config, res.Config)
+		assert.Equal(t, model.NewExperimentStatus(experiment.Config.RoundsTotal), res.Status)
 	})
 
-	t.Run("resume-experiment", func(t *testing.T) {
+	t.Run("resume-experiment-happy-path", func(t *testing.T) {
+		// test resume with experiment config reset to resume
+		ae := &activeExperiment{
+			ExperimentId: experimentId,
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true, // round in progress
+				RoundsCompleted: 1,
+				RoundsTotal:     2,
+			},
+			Config:      experiment.Config,
+			RewardFound: false,    // reward not found
+			LatestFrame: &frame{}, // round in progress, last frame is not nil
+			recorder:    &recorderStub{},
+		}
+
 		service := &Service{
 			invites: &inviteRepositoryStub{
 				Invites: []model.Invite{invite},
@@ -239,19 +259,7 @@ func TestServiceStartExperiment(t *testing.T) {
 			},
 			activeExperiments: &activeExperimentCache{
 				experiments: map[uuid.UUID]*activeExperiment{
-					userId: {
-						recorder:     &recorderStub{},
-						latestFrame:  nil,
-						TrackingId:   uuid.New(),
-						ExperimentId: experimentId,
-						UserId:       userId,
-						ExperimentStatus: model.ExperimentStatus{
-							RoundInProgress: false,
-							RoundNumber:     1,
-							RoundsTotal:     2,
-						},
-						ExperimentConfig: experiment.Config,
-					},
+					userId: ae,
 				},
 			},
 		}
@@ -261,22 +269,25 @@ func TestServiceStartExperiment(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, model.ExperimentStatus{
 			RoundInProgress: false,
-			RoundNumber:     1,
+			RoundsCompleted: 1,
 			RoundsTotal:     2,
 		}, res.Status)
+		assert.Nil(t, res.Frame)
+		assertIsReset(t, ae)
+
 	})
 
-	t.Run("no-pending-experiments", func(t *testing.T) {
+	t.Run("start-no-experiments", func(t *testing.T) {
 		service := &Service{
 			invites: &inviteRepositoryStub{
-				Invites: []model.Invite{},
+				Invites: []model.Invite{}, // empty
 			},
 			experiments: &experimentRepositoryStub{
 				Experiment: experiment,
 				Err:        nil,
 			},
 			activeExperiments: &activeExperimentCache{
-				experiments: map[uuid.UUID]*activeExperiment{},
+				experiments: map[uuid.UUID]*activeExperiment{}, // empty
 			},
 		}
 
@@ -284,7 +295,7 @@ func TestServiceStartExperiment(t *testing.T) {
 		assert.ErrorIs(t, err, errExperimentNotFound)
 	})
 
-	t.Run("pending-experiment-id-does-not-match", func(t *testing.T) {
+	t.Run("start-incorrect-experiment-id", func(t *testing.T) {
 		service := &Service{
 			invites: &inviteRepositoryStub{
 				Invites: []model.Invite{invite},
@@ -299,7 +310,6 @@ func TestServiceStartExperiment(t *testing.T) {
 		}
 
 		newExperimentId := uuid.New()
-
 		_, err := service.StartExperiment(ctx, userId, newExperimentId)
 		assert.ErrorIs(t, err, errExperimentNotFound)
 	})
