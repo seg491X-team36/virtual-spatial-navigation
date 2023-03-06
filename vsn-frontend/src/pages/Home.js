@@ -8,10 +8,10 @@ const Home = () => {
         <>
             <h1>Welcome!</h1>
             <h2>What would you like to do?</h2>
-            <div class="ui button" tabindex="0">View Experiments</div>
-            <div class="ui button" tabindex="0">View Participants</div>
-            <div class="ui button" tabindex="0">Rejected Users</div>
-            <div class="ui button" tabindex="0">View Sign Ups</div>
+            <button class="ui button" tabindex="0">View Experiments</button>
+            <button class="ui button" tabindex="0">View Participants</button>
+            <button class="ui button" tabindex="0">Rejected Users</button>
+            <button class="ui button" tabindex="0">View Sign Ups</button>
         </>
     )
 };
