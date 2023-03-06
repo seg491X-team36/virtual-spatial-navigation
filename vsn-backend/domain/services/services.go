@@ -26,5 +26,5 @@ type VerificationService interface {
 }
 
 type LoginService interface {
-	Login(email string, password string) (token string, err error)
+	Login(email, password string) (token string, err error)
 }

@@ -7,3 +7,10 @@ func payloadWrapper[T any](t T, err error) (*T, *string) {
 	}
 	return &t, nil
 }
+
+func nullable[T any](t T, err error) *T {
+	if err != nil {
+		return nil
+	}
+	return &t
+}
