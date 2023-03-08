@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"github.com/seg491X-team36/vsn-backend/codegen/db"
@@ -54,7 +53,7 @@ func (repository *UserRepository) GetUserByEmail(
 	return convertUser(user), err
 }
 
-func (repository UserRepository) CreateUser(
+func (repository *UserRepository) CreateUser(
 	ctx context.Context,
 	email string,
 	source string,
@@ -67,9 +66,18 @@ func (repository UserRepository) CreateUser(
 	return convertUser(user), err
 }
 
-func (repository UserRepository) UpdateUserState(
+func (repository *UserRepository) UpdateUserState(
 	ctx context.Context,
-	input model.UserSelectInput,
-) error {
-	return errors.New("not implemented")
+	userIds []uuid.UUID,
+	state model.UserAccountState,
+) []model.User {
+	users, err := repository.Query.UpdateUserState(ctx, db.UpdateUserStateParams{
+		State:   db.UserAccountState(state),
+		UserIds: userIds,
+	})
+	if err != nil {
+		return []model.User{}
+	}
+
+	return convertUsers(users)
 }
