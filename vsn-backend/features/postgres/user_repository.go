@@ -46,6 +46,14 @@ func (repository *UserRepository) GetUsersByState(
 	return convertUsers(users), err
 }
 
+func (repository *UserRepository) GetUserByEmail(
+	ctx context.Context,
+	email string,
+) (model.User, error) {
+	user, err := repository.Query.GetUserByEmail(ctx, email)
+	return convertUser(user), err
+}
+
 func (repository UserRepository) CreateUser(
 	ctx context.Context,
 	email string,

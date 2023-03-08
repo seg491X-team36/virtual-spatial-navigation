@@ -53,6 +53,7 @@ type Query {
     login(email: String!, password: String!): String
 
     user(id: ID!): User
+    userByEmail(email: String!): User
     users(state: UserAccountState): [User!]!
 
     invite(id: ID!): Invite

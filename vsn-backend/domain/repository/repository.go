@@ -11,6 +11,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, email string, source string) (model.User, error)
 	GetUser(ctx context.Context, userId uuid.UUID) (model.User, error)
 	GetUsersByState(ctx context.Context, state model.UserAccountState) []model.User
+	GetUserByEmail(ctx context.Context, email string) (model.User, error)
 	UpdateUserState(ctx context.Context, userIds []uuid.UUID, state model.UserAccountState) []model.User
 	// get the users who are not invited to an experiment
 	GetUsersNotInvited(ctx context.Context, experimentId uuid.UUID) []model.User
