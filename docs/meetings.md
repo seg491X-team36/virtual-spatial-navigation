@@ -154,3 +154,18 @@ Game dev (3 people)
 - Might have lab tech who can do it but he might be leaving
 - Requesting a server
 - Need to send her the links
+
+# 08/03/2023
+## Notes
+- Don’t necessarily need to be moving around
+- 30 seconds automatically start the next round, but have option to skip the waiting
+- Need to look at model of the floor (cross reference 3D model with IRL model)
+- Need to change color of the walls to match the one she actually has 
+- Cube looks good, may need to change some things?
+- Change state of arena based on criteria
+-- Ex: after 12 tries, move the prize (mouse gets good at finding the cheese after 12 tries, so have to move it after)
+-- Go based off time criteria for now 
+- Percent correctness
+- No fail conditions yet
+- Make tutorial as intuitive as possible
+-- She wants a tutorial WITH NO PRIMING.
