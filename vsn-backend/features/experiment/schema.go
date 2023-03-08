@@ -1,9 +1,18 @@
 package experiment
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/seg491X-team36/vsn-backend/domain/model"
+)
+
+var (
+	errExperimentNotFound           = errors.New("experiment not found")
+	errExperimentRoundInProgress    = errors.New("experiment round already in progress")
+	errExperimentRewardNotFound     = errors.New("experiment round reward not found")
+	errExperimentRoundNotInProgress = errors.New("experiment round not in progress")
 )
 
 type verificationEmailRequest struct {
@@ -29,17 +38,24 @@ type pendingExperimentsRequest struct {
 }
 
 type pendingExperimentsResponse struct {
-	ExperimentId *uuid.UUID `json:"experimentId"` // the first pending experiment id
-	Pending      int        `json:"pending"`      // total pending experiments
+	ExperimentId         *uuid.UUID `json:"experimentId"`         // experiment id that can be started or resumed
+	ExperimentInProgress bool       `json:"experimentInProgress"` // if the experiment is in progress
+	Pending              int        `json:"pending"`              // total pending experiments (does not include in progress)
 }
 
 type startExperimentRequest struct {
-	ExperimentId uuid.UUID `json:"experimentId"`
+	ExperimentId uuid.UUID `json:"experimentId"` // experiment id to start
+}
+
+type startExperimentData struct {
+	Config model.ExperimentConfig `json:"config"`
+	Status model.ExperimentStatus `json:"status"` // always present starting or resuming
+	Frame  *frame                 `json:"frame"`  // the last frame recorded. only present when resuming and continuing from last frame
 }
 
 type startExperimentResponse struct {
-	Experiment *experimentConfig `json:"experiment"`
-	Error      *string           `json:"error"`
+	Data  *startExperimentData `json:"data"`
+	Error *string              `json:"error"`
 }
 
 type startRoundRequest struct {
@@ -47,26 +63,30 @@ type startRoundRequest struct {
 }
 
 type startRoundResponse struct {
-	Status experimentStatus `json:"status"`
-	Error  *string          `json:"error"`
+	Status *model.ExperimentStatus `json:"status"`
+	Error  *string                 `json:"error"`
 }
 
 type stopRoundRequest struct {
-	// no request information needed
+	Data experimentData `json:"data"` // the remaining data to ensure all data is recorded before stopping the round
 }
 
 type stopRoundResponse struct {
-	Status experimentStatus `json:"status"`
-	Error  *string          `json:"error"`
+	Status *model.ExperimentStatus `json:"status"`
+	Error  *string                 `json:"error"`
 }
 
-type frameRequest struct {
+type recordDataRequest struct {
+	Data experimentData `json:"data"`
+}
+
+type recordDataResponse struct {
+	Error *string `json:"error"`
+}
+
+type experimentData struct {
 	Frames []frame `json:"frames"`
 	Events []event `json:"events"`
-}
-
-type frameResponse struct {
-	Error *string `json:"error"`
 }
 
 type frame struct {
@@ -82,18 +102,4 @@ type frame struct {
 type event struct {
 	Name      string    `json:"name"`
 	Timestamp time.Time `json:"timestamp"`
-}
-
-type experimentConfig struct {
-	// TODO
-	// arena id
-	// doors
-	// objects
-	// reward position
-}
-
-type experimentStatus struct {
-	RoundNumber     int `json:"round"`
-	RoundsRemaining int `json:"remaining"`
-	RoundsTotal     int `json:"total"`
 }

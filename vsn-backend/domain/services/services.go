@@ -24,3 +24,7 @@ type VerificationService interface {
 	EnterEmail(email string) error
 	EnterVerificationCode(email, code string) (token string, err error)
 }
+
+type LoginService interface {
+	Login(email, password string) (token string, err error)
+}

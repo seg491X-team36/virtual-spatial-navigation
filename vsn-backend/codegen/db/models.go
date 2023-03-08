@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -59,20 +60,21 @@ type Experiment struct {
 	ID          uuid.UUID
 	Name        string
 	Description string
+	Config      json.RawMessage
 }
 
 type ExperimentResult struct {
 	ID           uuid.UUID
+	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Completed    time.Time
 }
 
 type Invite struct {
 	ID           uuid.UUID
+	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
 }
 
 type User struct {

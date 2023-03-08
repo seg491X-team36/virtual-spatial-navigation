@@ -23,50 +23,17 @@ type User struct {
 
 type Invite struct {
 	ID           uuid.UUID
+	CreatedAt    time.Time
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
-}
-
-type Arena struct {
-	Id uuid.UUID
-}
-
-type Experiment struct {
-	Id          uuid.UUID
-	Name        string
-	Description string
-	ArenaId     uuid.UUID
-}
-
-type ExperimentResult struct {
-	Id           uuid.UUID
-	UserId       uuid.UUID // id used to store the experiment data
-	ExperimentId uuid.UUID
-	Completed    time.Time
-}
-
-type ExperimentInput struct {
-	ArenaID uuid.UUID
-}
-
-type ExperimentUpdateDescriptionInput struct {
-	ExperimentID uuid.UUID
-	Description  string
-}
-
-type ExperimentUpdateNameInput struct {
-	ExperimentID uuid.UUID
-	Name         string
 }
 
 type InviteInput struct {
 	UserID       uuid.UUID
 	ExperimentID uuid.UUID
-	Supervised   bool
 }
 
-type UserSelectionInput struct {
+type UserSelectInput struct {
 	UserID uuid.UUID
 	Accept bool
 }

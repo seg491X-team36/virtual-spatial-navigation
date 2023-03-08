@@ -13,15 +13,10 @@ type ExperimentPayload struct {
 
 type InvitePayload struct {
 	Invite *model.Invite `json:"invite"`
-	Error  string        `json:"error"`
+	Error  *string       `json:"error"`
 }
 
 type UserPayload struct {
 	User  *model.User `json:"user"`
 	Error *string     `json:"error"`
-}
-
-type UserSelectionPayload struct {
-	User  *model.User `json:"user"`
-	Error string      `json:"error"`
 }

@@ -44,7 +44,7 @@ func TestService(t *testing.T) {
 			Rand:       CryptoRandFunc,
 		},
 		CodesExpireAfter: time.Minute * 15,
-		Tokens: &TokenManager{
+		Tokens: &TokenManager[model.UserClaims]{
 			Secret: []byte("secret"),
 		},
 		Pending: map[string]PendingRequest{},
@@ -83,7 +83,7 @@ func TestService(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	service := Service{
-		Tokens: &TokenManager{
+		Tokens: &TokenManager[model.UserClaims]{
 			Secret: []byte("secret"),
 		},
 		Pending: map[string]PendingRequest{

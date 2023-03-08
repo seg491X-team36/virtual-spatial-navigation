@@ -33,12 +33,9 @@ func (repository *InviteRepository) GetInvite(
 func (repository *InviteRepository) GetInvitesByExperimentId(
 	ctx context.Context,
 	supervised bool,
-	id uuid.UUID,
+	experimentId uuid.UUID,
 ) ([]model.Invite, error) {
-	invites, err := repository.Query.GetInvitesByExperimentId(ctx, db.GetInvitesByExperimentIdParams{
-		Supervised:   supervised,
-		ExperimentID: id,
-	})
+	invites, err := repository.Query.GetInvitesByExperimentId(ctx, experimentId)
 	return convertInvites(invites), err
 }
 
@@ -50,7 +47,14 @@ func (repository *InviteRepository) CreateInvite(
 	invite, err := repository.Query.CreateInvite(ctx, db.CreateInviteParams{
 		UserID:       input.UserID,
 		ExperimentID: input.ExperimentID,
-		Supervised:   input.Supervised,
 	})
 	return model.Invite(invite), err
+}
+
+func (repository *InviteRepository) GetPendingInvites(ctx context.Context, userId uuid.UUID) []model.Invite {
+	invites, err := repository.Query.GetPendingInvites(ctx, userId)
+	if err != nil {
+		return []model.Invite{}
+	}
+	return convertInvites(invites)
 }

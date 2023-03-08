@@ -7,18 +7,18 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/seg491X-team36/vsn-backend/features/security/verification"
+	"github.com/seg491X-team36/vsn-backend/domain/model"
 	"github.com/stretchr/testify/assert"
 )
 
 type tokenVerifierStub struct {
 	Expected string
-	Token    verification.Token
+	Token    model.UserClaims
 }
 
-func (t *tokenVerifierStub) Verify(token string) (verification.Token, error) {
+func (t *tokenVerifierStub) Verify(token string) (model.UserClaims, error) {
 	if token != t.Expected {
-		return verification.Token{}, errors.New("token stub error")
+		return model.UserClaims{}, errors.New("token stub error")
 	}
 	return t.Token, nil
 }
@@ -28,15 +28,15 @@ func TestMiddleware(t *testing.T) {
 
 	verifier := &tokenVerifierStub{
 		Expected: "EXPECTED",
-		Token:    verification.Token{UserId: id},
+		Token:    model.UserClaims{UserId: id},
 	}
 
-	middleware := AuthMiddleware(verifier)
+	middleware := Middleware(verifier)
 
 	handler := middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// get the token
-		token, ok := AuthToken(r.Context())
-		assert.Equal(t, id, token.UserId)
+		claims, ok := GetUserClaims(r.Context())
+		assert.Equal(t, id, claims.UserId)
 		assert.True(t, ok)
 	}))
 
