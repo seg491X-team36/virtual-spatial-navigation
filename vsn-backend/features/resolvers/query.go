@@ -37,6 +37,12 @@ func (q *QueryResolvers) Users(ctx context.Context, state *model.UserAccountStat
 	return users, nil
 }
 
+func (q *QueryResolvers) UserByEmail(ctx context.Context, email string) (*model.User, error) {
+	// query user by id
+	user, err := q.UserRepository.GetUserByEmail(ctx, email)
+	return nullable(user, err), nil
+}
+
 func (q *QueryResolvers) Invite(ctx context.Context, id uuid.UUID) (*model.Invite, error) {
 	// query invite by id
 	invite, err := q.InviteRepository.GetInvite(ctx, id)
