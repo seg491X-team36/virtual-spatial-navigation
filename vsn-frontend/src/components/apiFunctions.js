@@ -1,4 +1,4 @@
-// these functions can be copied to hook to backend ////////////////////////////////
+// these functions can be kept for hooking onto the backend ////////////////////////////////
 export const login = (email, password) => {
     return true;
 }
@@ -23,7 +23,7 @@ export const experiments = () => {
     return data_experiments;
 }
 
-// helper functions
+// helper functions, can be deleted later
 export const getUserInvites = (u_id) => {
     return data_invites.filter(i => i.user === u_id);
 }
@@ -44,7 +44,7 @@ export const getUsersNotInvited = (exp_id) => {
     return data_users.filter(u => data_invites.filter(i => i.experiment === exp_id) === 0);
 }
 
-// dummy data, remove later ////////////////////////////////
+// fake data, remove later ////////////////////////////////
 export const data_experiment_results = [
     {id: "1", created_at: "", user: "4", experiment: "1"},
     {id: "2", created_at: "", user: "5", experiment: "1"},
