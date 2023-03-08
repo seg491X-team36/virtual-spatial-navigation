@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public PauseMenu PauseMenu; //Access PauseMenu Object 
 
     [SerializeField] float moveSpeed = 10f;
     [SerializeField] float rotateSpeedH = 5f;
@@ -25,11 +26,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if(PauseMenu.isPaused == false){
         HandleMovementInput();
         HandleMouseLook();
         HandleJump();
 
         HandleFinalMovement();
+        }
     }
 
     private void HandleMovementInput()
@@ -44,10 +47,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMouseLook()
     {
+        
         yaw += rotateSpeedH * Input.GetAxis("Mouse X");
         pitch -= rotateSpeedV * Input.GetAxis("Mouse Y");
         pitch = Mathf.Clamp(pitch, -80, 60);
         player.transform.eulerAngles = new Vector3(pitch, yaw, 0f);
+    
     }
 
     private void HandleJump()
