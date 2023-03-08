@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 860c2d3883b92f4418b3a4250a98027c, type: 3}
   m_Name: BackendHandlerSO
   m_EditorClassIdentifier: 
-  events: {fileID: 0}
-  address: 
+  events: {fileID: 11400000, guid: 36385c58359ea614ca059e125b7d7b5f, type: 2}
+  address: http://localhost:3000
+  token: 

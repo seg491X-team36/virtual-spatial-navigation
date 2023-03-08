@@ -15,42 +15,56 @@ MonoBehaviour:
   OnSubmitEmailRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnSubmitEmailResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnVerificationRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnVerificationResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnPendingRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnPendingResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnStartExperimentRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnStartExperimentResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnStartRoundRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnStartRoundResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnStopRoundRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnStopRoundResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnRecordRequest:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   OnRecordResponse:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
