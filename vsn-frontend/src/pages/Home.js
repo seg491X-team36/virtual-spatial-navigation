@@ -1,11 +1,13 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
 import 'semantic-ui-css/semantic.min.css'
+// import { Button, ButtonGroup } from 'semantic-ui-react';
 
 const Home = () => {
-    return(
+    return (
         <>
-        <h1>Home</h1>
+            <h1 style={{textAlign:'center'}}>Virtual Space Navigation</h1>
+            <h2 style={{textAlign:'center'}}>Welcome, Admin!</h2>
         </>
     )
 };
