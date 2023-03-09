@@ -9,62 +9,48 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3eca2c07c54481b4d8d269981f70bcbb, type: 3}
+  m_Script: {fileID: 11500000, guid: d420ffce72d51244ab2317ed68d6e403, type: 3}
   m_Name: BackendEventsSO
   m_EditorClassIdentifier: 
   OnSubmitEmailRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnSubmitEmailResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnVerificationRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnVerificationResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnPendingRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnPendingResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnStartExperimentRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnStartExperimentResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnStartRoundRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnStartRoundResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnStopRoundRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnStopRoundResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnRecordRequest:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1
   OnRecordResponse:
     m_PersistentCalls:
       m_Calls: []
-    m_CallsDirty: 1

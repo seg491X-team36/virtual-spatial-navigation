@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 860c2d3883b92f4418b3a4250a98027c, type: 3}
+  m_Script: {fileID: 11500000, guid: f729e2c618fbdbb4cbf4666e3aa0c4d6, type: 3}
   m_Name: BackendHandlerSO
   m_EditorClassIdentifier: 
-  events: {fileID: 11400000, guid: 36385c58359ea614ca059e125b7d7b5f, type: 2}
-  address: http://localhost:3000
-  token: 
+  events: {fileID: 0}
+  address: 
