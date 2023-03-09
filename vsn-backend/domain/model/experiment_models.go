@@ -26,17 +26,18 @@ type ExperimentConfig struct {
 	SpawnSequence  []int                  `json:"spawnSequence"`
 	RewardPosition int                    `json:"rewardPosition"`
 	Arena          Arena                  `json:"arena"`
+	ArenaObjects   []ArenaObject          `json:"arenaObjects"`
 }
 
 type Arena struct {
-	Objects         []string   `json:"objects"` // string identifier known by unity game
+	ObjectNames     []string   `json:"objectNames"` // string identifier known by unity game
 	RewardPositions []Position `json:"rewardPositions"`
 	SpawnPositions  []Position `json:"spawnPositions"`
 }
 
 type ArenaObject struct {
-	Object   string   `json:"object"` // string identifier
-	Position Position `json:"position"`
+	ObjectName string   `json:"objectName"` // string identifier
+	Position   Position `json:"position"`
 }
 
 type Position struct {
