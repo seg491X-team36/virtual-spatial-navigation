@@ -61,7 +61,7 @@ func (ae *activeExperiment) StopRound(data experimentData) error {
 		return errExperimentRoundNotInProgress
 	}
 
-	// record data in case the REWARD_FOUND event
+	// record data in case the REWARD_FOUND event and to save remaining frames
 	ae.Record(data)
 
 	// can't stop the round if the reward has not been found
@@ -96,7 +96,7 @@ func (ae *activeExperiment) Resume() {
 	}
 
 	// resume and continue round
-	if ae.Config.Resume == model.CONTINUE_ROUND {
+	if ae.Config.Resume == model.CONTINUE_ROUND && ae.LatestFrame != nil {
 		ae.RecordEvent(eventResumeContinue)
 		return
 	}
