@@ -193,7 +193,7 @@ func TestResume(t *testing.T) {
 		assertEventRecorded(t, rec, eventResumeReset)  // recorded as reset
 	})
 
-	t.Run("in-progress-continue", func(t *testing.T) {
+	t.Run("in-progress-continue-with-frame", func(t *testing.T) {
 		rec := &recorderStub{}
 		experiment := &activeExperiment{
 			Config: model.ExperimentConfig{
@@ -211,9 +211,32 @@ func TestResume(t *testing.T) {
 		}
 
 		experiment.Resume()
-		assert.Equal(t, 0, experiment.RoundsCompleted)   // reset to the next round
-		assertIsNotReset(t, experiment)                  // reset to the next round
-		assertEventRecorded(t, rec, eventResumeContinue) // recorded as no effect
+		assert.Equal(t, 0, experiment.RoundsCompleted)   // the number of rounds completed stays the same
+		assertIsNotReset(t, experiment)                  // continued the round
+		assertEventRecorded(t, rec, eventResumeContinue) // record the round was continued
+	})
+
+	t.Run("in-progress-continue-without-frame", func(t *testing.T) {
+		rec := &recorderStub{}
+		experiment := &activeExperiment{
+			Config: model.ExperimentConfig{
+				Resume: model.CONTINUE_ROUND,
+			},
+			ExperimentStatus: model.ExperimentStatus{
+				RoundInProgress: true,
+				RoundsCompleted: 0,
+				RoundsTotal:     1,
+			},
+			RewardFound: false,
+			LatestFrame: nil, // nil frame
+			recorder:    rec,
+			onComplete:  func() {},
+		}
+
+		experiment.Resume()
+		assert.Equal(t, 0, experiment.RoundsCompleted) // the number of rounds completed stays the same
+		assertIsReset(t, experiment)                   // reset to beginning of the round
+		assertEventRecorded(t, rec, eventResumeReset)  // record the round was reset
 	})
 }
 

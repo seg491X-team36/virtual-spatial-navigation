@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d420ffce72d51244ab2317ed68d6e403, type: 3}
+  m_Name: BackendEventsSO
+  m_EditorClassIdentifier: 
+  OnSubmitEmailRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSubmitEmailResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnVerificationRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnVerificationResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPendingRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPendingResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartExperimentRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartExperimentResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartRoundRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartRoundResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopRoundRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopRoundResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRecordRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRecordResponse:
+    m_PersistentCalls:
+      m_Calls: []
